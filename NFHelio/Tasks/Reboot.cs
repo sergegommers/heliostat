@@ -12,7 +12,7 @@
     string ITask.Command => "reboot";
 
     /// <inheritdoc />
-    string ITask.Description => "reboot: Reboots the microcontroller";
+    string ITask.Description => "Reboots the microcontroller";
 
     /// <inheritdoc />
     string ITask.Help => "No further info";

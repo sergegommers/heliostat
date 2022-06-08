@@ -12,7 +12,7 @@
     string ITask.Description => "Sets the position as latitude longitude";
 
     /// <inheritdoc />
-    string ITask.Help => "setpos <latitude> <longitude> with both values as doubles";
+    string ITask.Help => "setpos <latitude> <longitude>\nwith both values as doubles";
 
     /// <inheritdoc />
     public void Execute(string[] args)

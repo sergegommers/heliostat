@@ -41,7 +41,7 @@
     <Compile Include="Tasks\CalcSpa.cs" />
     <Compile Include="Tasks\Calibrate.cs" />
     <Compile Include="Tasks\FindFreeRam.cs" />
-    <Compile Include="Tasks\Follow.cs" />
+    <Compile Include="Tasks\FollowSun.cs" />
     <Compile Include="Tasks\FreeMem.cs" />
     <Compile Include="Tasks\GetTime.cs" />
     <Compile Include="Tasks\ITask.cs" />
@@ -50,7 +50,7 @@
     <Compile Include="Tasks\Reboot.cs" />
     <Compile Include="Tasks\SetPosition.cs" />
     <Compile Include="Tasks\SetTime.cs" />
-    <Compile Include="Tasks\TestEngine.cs" />
+    <Compile Include="Tasks\TestMotors.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Iot.Device.Common.NumberHelper">

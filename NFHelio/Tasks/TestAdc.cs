@@ -17,7 +17,7 @@
     string ITask.Description => "Tests the adc controller";
 
     /// <inheritdoc />
-    string ITask.Help => "testadc <plane> <samples> where plane is a or z and samples is the number of measurements to take";
+    string ITask.Help => "testadc <plane> <samples> where plane is a or z\nand samples is the number of measurements to take";
 
     /// <inheritdoc />
     public void Execute(string[] args)

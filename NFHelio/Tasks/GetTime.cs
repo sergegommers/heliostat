@@ -9,7 +9,7 @@
     string ITask.Command => "gettime";
 
     /// <inheritdoc />
-    string ITask.Description => "gettime: Returns the time";
+    string ITask.Description => "Returns the time from the RTC.";
 
     /// <inheritdoc />
     string ITask.Help => "No further info";

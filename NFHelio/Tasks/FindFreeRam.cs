@@ -11,7 +11,7 @@
     string ITask.Command => "freeram";
 
     /// <inheritdoc />
-    string ITask.Description => "freeram: Finds how much RAM is available";
+    string ITask.Description => "Finds how much RAM is available";
 
     /// <inheritdoc />
     string ITask.Help => "No further info";

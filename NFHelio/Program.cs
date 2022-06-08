@@ -14,7 +14,7 @@ namespace NFHelio
 
     public static void Main()
     {
-      Debug.WriteLine($"Starting NFHelio");
+      Debug.WriteLine($"Starting HelioStat");
 
       SetupPins();
 
@@ -30,7 +30,7 @@ namespace NFHelio
         context.Settings = new Settings();
       }
 
-      Debug.WriteLine($"NFHelio is started, awaiting commands...");
+      Debug.WriteLine($"HelioStat is started, awaiting commands...");
 
       while (true)
       {
@@ -68,7 +68,7 @@ namespace NFHelio
       bluetoothSpp.ConnectedEvent += Spp_ConnectedEvent;
 
       // Start Advertising SPP service
-      bluetoothSpp.Start("SunTracker");
+      bluetoothSpp.Start("HelioStat");
 
       return bluetoothSpp;
     }
@@ -77,7 +77,7 @@ namespace NFHelio
     {
       if (context.BluetoothSpp.IsConnected)
       {
-        context.BluetoothSpp.SendString($"Welcome to SunTracker\n");
+        context.BluetoothSpp.SendString($"Welcome to HelioStat\n");
         context.BluetoothSpp.SendString($"Send 'help' for options\n");
       }
 

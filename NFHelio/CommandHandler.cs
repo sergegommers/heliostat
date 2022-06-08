@@ -47,7 +47,7 @@
 
         var tasks = new ArrayList
         {
-          new Follow(),
+          new FollowSun(),
           new Calibrate(),
           new MoveMirror(),
           new CalcSpa(),
@@ -57,16 +57,32 @@
           new FindFreeRam(),
           new FreeMem(),
           new TestAdc(),
-          new TestEngine(),
+          new TestMotors(),
           new Reboot(),
         };
 
         switch (command)
         {
           case "help":
+            if (args.Length == 0)
+            {
+              Program.context.BluetoothSpp.SendString($"help <command> for more info.\n");
+              Program.context.BluetoothSpp.SendString($"\n");
+            }
             foreach (ITask task in tasks)
             {
-              Program.context.BluetoothSpp.SendString($"{task.Description}\r\n");
+              if (args.Length > 0)
+              {
+                if (args[0].ToLower() == task.Command.ToLower())
+                {
+                  Program.context.BluetoothSpp.SendString($"{task.Help}\n");
+                  break;
+                }
+              }
+              else
+              {
+                Program.context.BluetoothSpp.SendString($"{task.Command}: {task.Description}\n");
+              }
             }
             break;
           default:
@@ -80,7 +96,7 @@
               }
             }
 
-            Program.context.BluetoothSpp.SendString($"Unknown command\r\n");
+            Program.context.BluetoothSpp.SendString($"Unknown command\n");
 
             break;
         }

@@ -11,10 +11,10 @@
     string ITask.Command => "cal";
 
     /// <inheritdoc />
-    string ITask.Description => "Calibrates the potentiometers that measure the azimuth and zenith angles";
+    string ITask.Description => "Calibrates the azimuth and zenith angles";
 
     /// <inheritdoc />
-    string ITask.Help => "cal <plane> <angle> where plane is a or z or r to reset existing values\nAngle is the current angle.";
+    string ITask.Help => "cal <plane> <angle> where plane is a or z\nor r to reset existing values.\nAngle is the current angle.";
 
     /// <inheritdoc />
     public void Execute(string[] args)
@@ -44,7 +44,7 @@
           Program.context.BluetoothSpp.SendString("Mirror calibration is cleared\n");
           return;
         default:
-          Program.context.BluetoothSpp.SendString("Unknown axis to calibrate\n");
+          Program.context.BluetoothSpp.SendString("Unknown plane to calibrate\n");
           return;
       }
 
@@ -78,7 +78,7 @@
       }
 
       Program.context.SettingsStorageFactory.GetSettingsStorage().WriteSettings(Program.context.Settings);
-      Program.context.BluetoothSpp.SendString($"Adc value for axis {args[0]} set to angle {(short)angle} and value {(short)value}\n");
+      Program.context.BluetoothSpp.SendString($"Adc value for plane {args[0]}\nset to angle {(short)angle} and value {(short)value}\n");
     }
   }
 }

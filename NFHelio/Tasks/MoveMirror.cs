@@ -6,10 +6,10 @@
     string ITask.Command => "move";
 
     /// <inheritdoc />
-    string ITask.Description => "Moves the mirror in the given plane over the given angle";
+    string ITask.Description => "Moves the mirror";
 
     /// <inheritdoc />
-    string ITask.Help => "move <plane> <angle> where plane is a or z, angle is the desired angle";
+    string ITask.Help => "move <plane> <angle> where plane is a or z,\nangle is the desired angle";
 
     /// <inheritdoc />
     public void Execute(string[] args)

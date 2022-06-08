@@ -11,7 +11,7 @@
     string ITask.Command => "mem";
 
     /// <inheritdoc />
-    string ITask.Description => "mem: Shows details about the memory";
+    string ITask.Description => "Shows details about the memory";
 
     /// <inheritdoc />
     string ITask.Help => "No further info";

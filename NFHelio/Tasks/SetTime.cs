@@ -12,7 +12,7 @@
     string ITask.Description => "Sets the time of the real time clock";
 
     /// <inheritdoc />
-    string ITask.Help => "settime <yyyy> <mm> <dd> <hh> <mm> <ss> with the time in UTC";
+    string ITask.Help => "settime <yyyy> <mm> <dd> <hh> <mm> <ss>\nwith the time in UTC";
 
     /// <inheritdoc />
     public void Execute(string[] args)
