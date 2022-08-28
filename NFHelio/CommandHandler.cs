@@ -47,6 +47,7 @@
 
         var tasks = new ArrayList
         {
+          new TestOnboardLed(),
           new FollowSun(),
           new Calibrate(),
           new MoveMirror(),
