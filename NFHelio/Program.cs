@@ -1,11 +1,11 @@
 namespace NFHelio
 {
-  using System;
   using System.Diagnostics;
-  using System.Threading;
-  using nanoFramework.Device.Bluetooth.Spp;
+  using nanoFramework.DependencyInjection;
   using nanoFramework.Hardware.Esp32;
+  using nanoFramework.Hosting;
   using NFHelio.Devices;
+  using NFHelio.Services;
   using NFHelio.Storage;
 
   public static class Program
@@ -16,9 +16,10 @@ namespace NFHelio
     {
       Debug.WriteLine($"Starting HelioStat");
 
+      IHost host = CreateHostBuilder().Build();
+
       SetupPins();
 
-      context.BluetoothSpp = SetUpBlueTooth();
       context.EepromFactory = new AT24C32EepromFactory();
       context.SettingsStorageFactory = new SimpleSettingsStorageFactory();
       context.RealTimeClockFactory = new Ds3231RealTimeClockFactory();
@@ -32,43 +33,40 @@ namespace NFHelio
 
       Debug.WriteLine($"HelioStat is started, awaiting commands...");
 
-      while (true)
-      {
-        Thread.Sleep(10000);
-      }
+      // starts application and blocks the main calling thread 
+      host.Run();
     }
+
+    public static IHostBuilder CreateHostBuilder() =>
+      Host.CreateDefaultBuilder()
+        .ConfigureServices(services =>
+        {
+          services.AddSingleton(typeof(ICommandHandlerService), typeof(CommandHandlerService));
+          services.AddHostedService(typeof(BlueToothService));
+        });
 
     private static void SetupPins()
     {
+      // i2c pins
       Configuration.SetPinFunction((int)GPIOPort.I2C_Clock, DeviceFunction.I2C1_CLOCK);
       Configuration.SetPinFunction((int)GPIOPort.I2C_Data, DeviceFunction.I2C1_DATA);
+
+      // onboard led
+      Configuration.SetPinFunction((int)GPIOPort.ESP32_Onboard_Led, DeviceFunction.PWM16);
 
       // azimuth adc channel
       int pin = Configuration.GetFunctionPin(DeviceFunction.ADC1_CH0);
       if (pin != (int)GPIOPort.ADC_Azimuth)
       {
-        bool boe = true;
+        Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH0);
       }
 
+      // zenith adc channnel
       pin = Configuration.GetFunctionPin(DeviceFunction.ADC1_CH3);
       if (pin != (int)GPIOPort.ADC_Zenith)
       {
-        bool boe = true;
+        Configuration.SetPinFunction((int)GPIOPort.ADC_Zenith, DeviceFunction.ADC1_CH3);
       }
-
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH0);
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH1);
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH2);
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH3);
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH4);
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH5);
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH6);
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH7);
-
-      // zenith adc channnel
-      Configuration.SetPinFunction((int)GPIOPort.ADC_Zenith, DeviceFunction.ADC1_CH3);
-
-      Configuration.SetPinFunction((int)GPIOPort.ESP32_Onboard_Led, DeviceFunction.PWM16);
 
       // azimuth motor control
       Configuration.SetPinFunction((int)GPIOPort.PWM_Azimuth_East_to_West, DeviceFunction.PWM1);
@@ -77,38 +75,6 @@ namespace NFHelio
       // zenith motor control
       Configuration.SetPinFunction((int)GPIOPort.PWM_Zenith_Up, DeviceFunction.PWM3);
       Configuration.SetPinFunction((int)GPIOPort.PWM_Zenith_Down, DeviceFunction.PWM4);
-    }
-
-    private static IBluetoothSpp SetUpBlueTooth()
-    {
-      // Create Instance of Bluetooth Serial profile
-      var bluetoothSpp = new NordicSpp();
-
-      // Add event handles for received data and Connections 
-      bluetoothSpp.ReceivedData += Spp_ReceivedData;
-      bluetoothSpp.ConnectedEvent += Spp_ConnectedEvent;
-
-      // Start Advertising SPP service
-      bluetoothSpp.Start("HelioStat");
-
-      return bluetoothSpp;
-    }
-
-    private static void Spp_ConnectedEvent(IBluetoothSpp sender, EventArgs e)
-    {
-      if (context.BluetoothSpp.IsConnected)
-      {
-        context.BluetoothSpp.SendString($"Welcome to HelioStat\n");
-        context.BluetoothSpp.SendString($"Send 'help' for options\n");
-      }
-
-      Debug.WriteLine($"BlueTooth client connected:{sender.IsConnected}");
-    }
-
-    private static void Spp_ReceivedData(IBluetoothSpp sender, SppReceivedDataEventArgs receivedDataEventArgs)
-    {
-      var commandHandler = new CommandHandler();
-      commandHandler.HandleMessage(receivedDataEventArgs.DataString);
     }
   }
 }
