@@ -44,7 +44,26 @@ namespace NFHelio
       Configuration.SetPinFunction((int)GPIOPort.I2C_Data, DeviceFunction.I2C1_DATA);
 
       // azimuth adc channel
+      int pin = Configuration.GetFunctionPin(DeviceFunction.ADC1_CH0);
+      if (pin != (int)GPIOPort.ADC_Azimuth)
+      {
+        bool boe = true;
+      }
+
+      pin = Configuration.GetFunctionPin(DeviceFunction.ADC1_CH3);
+      if (pin != (int)GPIOPort.ADC_Zenith)
+      {
+        bool boe = true;
+      }
+
       Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH0);
+      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH1);
+      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH2);
+      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH3);
+      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH4);
+      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH5);
+      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH6);
+      Configuration.SetPinFunction((int)GPIOPort.ADC_Azimuth, DeviceFunction.ADC1_CH7);
 
       // zenith adc channnel
       Configuration.SetPinFunction((int)GPIOPort.ADC_Zenith, DeviceFunction.ADC1_CH3);
