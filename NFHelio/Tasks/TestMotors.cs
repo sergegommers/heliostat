@@ -1,5 +1,6 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Services;
   using System.Device.Pwm;
   using System.Threading;
 
@@ -8,6 +9,8 @@
   /// </summary>
   internal class TestMotors : ITask
   {
+    private readonly IAppMessageWriter appMessageWriter;
+
     /// <inheritdoc />
     string ITask.Command => "testmotor";
 
@@ -16,6 +19,15 @@
 
     /// <inheritdoc />
     string ITask.Help => "Briefly activates the motors";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestMotors"/> class.
+    /// </summary>
+    /// <param name="appMessageWriter">The application message writer.</param>
+    public TestMotors(IAppMessageWriter appMessageWriter)
+    {
+      this.appMessageWriter = appMessageWriter;
+    }
 
     /// <inheritdoc />
     public void Execute(string[] args)
@@ -34,7 +46,7 @@
           pwmPin2 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Zenith_Down, 40000, 0);
           break;
         default:
-          Program.context.BluetoothSpp.SendString("Unknown plane\n");
+          this.appMessageWriter.SendString("Unknown plane\n");
           return;
       }
 
@@ -49,7 +61,7 @@
       pwmPin1.Stop();
       pwmPin2.Stop();
 
-      Program.context.BluetoothSpp.SendString($"Done testing\n");
+      this.appMessageWriter.SendString($"Done testing\n");
     }
 
     private void TestChannel(PwmChannel channel)

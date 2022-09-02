@@ -2,8 +2,10 @@ namespace NFHelio
 {
   using System.Diagnostics;
   using nanoFramework.DependencyInjection;
+  using nanoFramework.Device.Bluetooth.Spp;
   using nanoFramework.Hardware.Esp32;
   using nanoFramework.Hosting;
+  using NFCommon.Services;
   using NFHelio.Devices;
   using NFHelio.Services;
   using NFHelio.Storage;
@@ -41,8 +43,10 @@ namespace NFHelio
       Host.CreateDefaultBuilder()
         .ConfigureServices(services =>
         {
-          services.AddSingleton(typeof(ICommandHandlerService), typeof(CommandHandlerService));
-          services.AddHostedService(typeof(BlueToothService));
+          services.AddSingleton(typeof(IBluetoothSpp), typeof(NordicSpp));
+          services.AddSingleton(typeof(IAppMessageWriter), typeof(AppMessageWriter));
+          services.AddTransient(typeof(ICommandHandlerService), typeof(CommandHandlerService));
+          services.AddHostedService(typeof(BlueToothReceiver));
         });
 
     private static void SetupPins()

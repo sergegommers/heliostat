@@ -1,5 +1,6 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Services;
   using System;
   using System.Device.Adc;
   using System.Diagnostics;
@@ -10,6 +11,8 @@
   /// </summary>
   internal class TestAdc : ITask
   {
+    private readonly IAppMessageWriter appMessageWriter;
+
     /// <inheritdoc />
     string ITask.Command => "testadc";
 
@@ -19,6 +22,15 @@
     /// <inheritdoc />
     string ITask.Help => "testadc <plane> <samples> where plane is a or z\nand samples is the number of measurements to take";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestAdc"/> class.
+    /// </summary>
+    /// <param name="appMessageWriter">The application message writer.</param>
+    public TestAdc(IAppMessageWriter appMessageWriter)
+    {
+      this.appMessageWriter = appMessageWriter;
+    }
+
     /// <inheritdoc />
     public void Execute(string[] args)
     {
@@ -26,7 +38,7 @@
 
       if (args.Length < 1)
       {
-        Program.context.BluetoothSpp.SendString("To test, provide a or z and (optionally) #samples\n");
+        this.appMessageWriter.SendString("To test, provide a or z and (optionally) #samples\n");
         return;
       }
 
@@ -40,7 +52,7 @@
           adcChannelNumber = Context.ZenithAdcChannel;
           break;
         default:
-          Program.context.BluetoothSpp.SendString("Unknown plane\n");
+          this.appMessageWriter.SendString("Unknown plane\n");
           return;
       }
 
@@ -69,7 +81,7 @@
         value /= setSize;
         percent /= setSize;
 
-        Program.context.BluetoothSpp.SendString($"value = {(int)value}, ratio = {percent}\n");
+        this.appMessageWriter.SendString($"value = {(int)value}, ratio = {percent}\n");
 
         value = 0;
         percent = 0;
@@ -77,7 +89,7 @@
         Thread.Sleep(1000);
       }
 
-      Program.context.BluetoothSpp.SendString($"Done testing adc\n");
+      this.appMessageWriter.SendString($"Done testing adc\n");
     }
   }
 }

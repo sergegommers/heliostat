@@ -1,6 +1,7 @@
 ﻿namespace NFHelio
 {
   using NFCommon;
+  using NFCommon.Services;
   using System;
   using System.Device.Pwm;
   using System.Diagnostics;
@@ -13,6 +14,13 @@
 
   public class MotorController
   {
+    public readonly IAppMessageWriter appMessageWriter;
+
+    public MotorController(IAppMessageWriter appMessageWriter)
+    {
+      this.appMessageWriter = appMessageWriter;
+    }
+
     public void MoveMotor(MotorPlane plane, short angleDesired)
     {
       int adcChannel;
@@ -43,7 +51,7 @@
           pwmPin2 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Zenith_Down, 40000, 0);
           break;
         default:
-          Program.context.BluetoothSpp.SendString("Unknown plane\n");
+          appMessageWriter.SendString("Unknown plane\n");
           return;
       }
 
@@ -86,7 +94,7 @@
           // know when to stop...
           if (Math.Abs(valueDesired - value) < 10)
           {
-            Program.context.BluetoothSpp.SendString($"Endpoint reached: valueDesired {valueDesired} value {value}\n");
+            appMessageWriter.SendString($"Endpoint reached: valueDesired {valueDesired} value {value}\n");
             break;
           }
 
@@ -99,7 +107,7 @@
             {
               pwmPin.DutyCycle = 0f;
 
-              Program.context.BluetoothSpp.SendString($"Motor is moving in wrong direction, reverse the polarity\n");
+              appMessageWriter.SendString($"Motor is moving in wrong direction, reverse the polarity\n");
 
               Debug.WriteLine($"Original diff: {originalDiff}, current diff {currentDiff}");
 
@@ -116,7 +124,7 @@
             {
               pwmPin.DutyCycle = 0f;
 
-              Program.context.BluetoothSpp.SendString($"Mirror is not moving, check if the motor is stuck\n");
+              appMessageWriter.SendString($"Mirror is not moving, check if the motor is stuck\n");
 
               Debug.WriteLine($"Current diff: {originalDiff}, last checked diff {lastCheckedDiff}");
 
@@ -170,7 +178,7 @@
       }
       catch (Exception ex)
       {
-        Program.context.BluetoothSpp.SendString($"MoveMirror stopped with exception {ex.Message}\n");
+        appMessageWriter.SendString($"MoveMirror stopped with exception {ex.Message}\n");
       }
       finally
       {

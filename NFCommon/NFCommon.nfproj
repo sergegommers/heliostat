@@ -19,6 +19,7 @@
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
     <Compile Include="CalibrationArray.cs" />
+    <Compile Include="Services\IAppMessageWriter.cs" />
     <Compile Include="Storage\ISettingsStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Storage\SettingsBase.cs" />

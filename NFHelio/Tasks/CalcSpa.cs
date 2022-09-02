@@ -1,5 +1,6 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Services;
   using NFSpa;
   using System.Diagnostics;
 
@@ -8,6 +9,8 @@
   /// </summary>
   internal class CalcSpa : ITask
   {
+    private readonly IAppMessageWriter appMessageWriter;
+
     /// <inheritdoc />
     string ITask.Command => "calcspa";
 
@@ -16,6 +19,15 @@
 
     /// <inheritdoc />
     string ITask.Help => "No further info";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CalcSpa"/> class.
+    /// </summary>
+    /// <param name="appMessageWriter">The application message writer.</param>
+    public CalcSpa(IAppMessageWriter appMessageWriter)
+    {
+      this.appMessageWriter = appMessageWriter;
+    }
 
     /// <inheritdoc />
     public void Execute(string[] args)
@@ -26,7 +38,7 @@
       var settings = Program.context.SettingsStorageFactory.GetSettingsStorage().ReadSettings() as Settings;
       if (settings == null)
       {
-        Program.context.BluetoothSpp.SendString("Calculation failed, can't read settings\n");
+        this.appMessageWriter.SendString("Calculation failed, can't read settings\n");
 
         return;
       }
@@ -54,16 +66,16 @@
       if (result == 0)
       {
         // display the results inside the SPA structure
-        Program.context.BluetoothSpp.SendString(string.Format("Azimuth:       {0,12:F6}\n", spa.azimuth));
-        Program.context.BluetoothSpp.SendString(string.Format("Zenith:        {0,12:F6}\n", spa.zenith));
+        this.appMessageWriter.SendString(string.Format("Azimuth:       {0,12:F6}\n", spa.azimuth));
+        this.appMessageWriter.SendString(string.Format("Zenith:        {0,12:F6}\n", spa.zenith));
 
         min = 60.0 * (spa.sunrise - (int)(spa.sunrise));
         sec = 60.0 * (min - (int)min);
-        Program.context.BluetoothSpp.SendString(string.Format("Sunrise:       {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunrise), (int)min, (int)sec));
+        this.appMessageWriter.SendString(string.Format("Sunrise:       {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunrise), (int)min, (int)sec));
 
         min = 60.0 * (spa.sunset - (int)(spa.sunset));
         sec = 60.0 * (min - (int)min);
-        Program.context.BluetoothSpp.SendString(string.Format("Sunset:        {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunset), (int)min, (int)sec));
+        this.appMessageWriter.SendString(string.Format("Sunset:        {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunset), (int)min, (int)sec));
       }
       else
       {

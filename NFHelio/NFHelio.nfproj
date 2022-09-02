@@ -21,6 +21,7 @@
     <Compile Include="AdcReader.cs" />
     <Compile Include="Devices\AT24C32.cs" />
     <Compile Include="Devices\AT24C32EepromFactory.cs" />
+    <Compile Include="Services\AppMessageWriter.cs" />
     <Compile Include="Services\CommandHandlerService.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="Devices\Ds3231RealTimeClockFactory.cs" />
@@ -33,13 +34,14 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Devices\Ds3231RealTimeClock.cs" />
-    <Compile Include="Services\BlueToothService.cs" />
+    <Compile Include="Services\BlueToothReceiver.cs" />
     <Compile Include="Services\ICommandHandlerService.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Storage\JsonSettingsStorage.cs" />
     <Compile Include="Storage\JsonSettingsStorageFactory.cs" />
     <Compile Include="Storage\SimpleSettingsStorage.cs" />
     <Compile Include="Storage\SimpleSettingsStorageFactory.cs" />
+    <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CalcSpa.cs" />
     <Compile Include="Tasks\Calibrate.cs" />
     <Compile Include="Tasks\FindFreeRam.cs" />

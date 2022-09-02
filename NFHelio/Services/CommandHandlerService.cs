@@ -4,17 +4,26 @@
   using NFHelio.Tasks;
   using System.Diagnostics;
   using NFHelio;
+  using System;
+  using NFCommon.Services;
 
   /// <summary>
   /// Here we check the incoming commands and start the matching tasks.
   /// </summary>
   public class CommandHandlerService : ICommandHandlerService
   {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CommandHandlerService"/> class.
-    /// </summary>
-    public CommandHandlerService()
+    private readonly IServiceProvider provider;
+    public readonly IAppMessageWriter appMessageWriter;
+
+    /// <summary>Initializes a new instance of the <see cref="CommandHandlerService" /> class.</summary>
+    /// <param name="provider"></param>
+    /// <param name="appMessageWriter"></param>
+    public CommandHandlerService(
+      IServiceProvider provider,
+      IAppMessageWriter appMessageWriter)
     {
+      this.provider = provider;
+      this.appMessageWriter = appMessageWriter;
     }
 
     /// <summary>
@@ -48,19 +57,19 @@
 
         var tasks = new ArrayList
         {
-          new TestOnboardLed(),
-          new FollowSun(),
-          new Calibrate(),
-          new MoveMirror(),
-          new CalcSpa(),
-          new SetTime(),
-          new SetPosition(),
-          new GetTime(),
-          new FindFreeRam(),
-          new FreeMem(),
-          new TestAdc(),
-          new TestMotors(),
-          new Reboot(),
+          new TestOnboardLed(this.provider),
+          new FollowSun(this.provider, this.appMessageWriter),
+          new Calibrate(this.appMessageWriter),
+          new MoveMirror(this.provider, this.appMessageWriter),
+          new CalcSpa(this.appMessageWriter),
+          new SetTime(this.appMessageWriter),
+          new SetPosition(this.appMessageWriter),
+          new GetTime(this.appMessageWriter),
+          new FindFreeRam(this.appMessageWriter),
+          new FreeMem(this.appMessageWriter),
+          new TestAdc(this.appMessageWriter),
+          new TestMotors(this.appMessageWriter),
+          new Reboot(this.appMessageWriter),
         };
 
         switch (command)
@@ -68,8 +77,8 @@
           case "help":
             if (args.Length == 0)
             {
-              Program.context.BluetoothSpp.SendString($"help <command> for more info.\n");
-              Program.context.BluetoothSpp.SendString($"\n");
+              this.appMessageWriter.SendString($"help <command> for more info.\n");
+              this.appMessageWriter.SendString($"\n");
             }
             foreach (ITask task in tasks)
             {
@@ -77,13 +86,13 @@
               {
                 if (args[0].ToLower() == task.Command.ToLower())
                 {
-                  Program.context.BluetoothSpp.SendString($"{task.Help}\n");
+                  this.appMessageWriter.SendString($"{task.Help}\n");
                   break;
                 }
               }
               else
               {
-                Program.context.BluetoothSpp.SendString($"{task.Command}: {task.Description}\n");
+                this.appMessageWriter.SendString($"{task.Command}: {task.Description}\n");
               }
             }
             break;
@@ -98,7 +107,7 @@
               }
             }
 
-            Program.context.BluetoothSpp.SendString($"Unknown command\n");
+            this.appMessageWriter.SendString($"Unknown command\n");
 
             break;
         }

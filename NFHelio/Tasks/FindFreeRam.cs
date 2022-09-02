@@ -1,5 +1,6 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Services;
   using System;
 
   /// <summary>
@@ -7,6 +8,8 @@
   /// </summary>
   internal class FindFreeRam : ITask
   {
+    private readonly IAppMessageWriter appMessageWriter;
+
     /// <inheritdoc />
     string ITask.Command => "freeram";
 
@@ -15,6 +18,15 @@
 
     /// <inheritdoc />
     string ITask.Help => "No further info";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FindFreeRam"/> class.
+    /// </summary>
+    /// <param name="appMessageWriter">The application message writer.</param>
+    public FindFreeRam(IAppMessageWriter appMessageWriter)
+    {
+      this.appMessageWriter = appMessageWriter;
+    }
 
     /// <inheritdoc />
     public void Execute(string[] args)
@@ -26,17 +38,17 @@
         var relsize = (int)Math.Pow(2, i);
         try
         {
-          Program.context.BluetoothSpp.SendString($"FreeRam - Allocating {relsize + freeram} bytes\n");
+          this.appMessageWriter.SendString($"FreeRam - Allocating {relsize + freeram} bytes\n");
           Alloc(relsize + freeram);
           freeram += relsize;
-          Program.context.BluetoothSpp.SendString($"FreeRam - Allocated {freeram} bytes\n");
+          this.appMessageWriter.SendString($"FreeRam - Allocated {freeram} bytes\n");
         }
         catch
         {
         }
       }
 
-      Program.context.BluetoothSpp.SendString($"FreeRam = {freeram} bytes\n");
+      this.appMessageWriter.SendString($"FreeRam = {freeram} bytes\n");
     }
 
     private void Alloc(int size)

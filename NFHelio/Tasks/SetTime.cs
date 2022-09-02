@@ -1,10 +1,14 @@
-﻿namespace NFHelio.Tasks
+﻿using NFCommon.Services;
+
+namespace NFHelio.Tasks
 {
   /// <summary>
   /// Sets the time
   /// </summary>
   internal class SetTime : ITask
   {
+    private readonly IAppMessageWriter appMessageWriter;
+
     /// <inheritdoc />
     string ITask.Command => "settime";
 
@@ -14,12 +18,21 @@
     /// <inheritdoc />
     string ITask.Help => "settime <yyyy> <mm> <dd> <hh> <mm> <ss>\nwith the time in UTC";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SetTime"/> class.
+    /// </summary>
+    /// <param name="appMessageWriter">The application message writer.</param>
+    public SetTime(IAppMessageWriter appMessageWriter)
+    {
+      this.appMessageWriter = appMessageWriter;
+    }
+
     /// <inheritdoc />
     public void Execute(string[] args)
     {
       if (args.Length != 6)
       {
-        Program.context.BluetoothSpp.SendString("To set the time provide year month day hour minute second\n");
+        this.appMessageWriter.SendString("To set the time provide year month day hour minute second\n");
         return;
       }
 
@@ -33,7 +46,7 @@
         int.Parse(args[5]));
 
       var dt = realTimeClock.GetTime();
-      Program.context.BluetoothSpp.SendString($"Time set to: {dt.ToString("yyyy/MM/dd HH:mm:ss")}\n");
+      this.appMessageWriter.SendString($"Time set to: {dt.ToString("yyyy/MM/dd HH:mm:ss")}\n");
     }
   }
 }

@@ -1,6 +1,8 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Services;
   using NFSpa;
+  using System;
   using System.Diagnostics;
   using System.Threading;
 
@@ -9,6 +11,9 @@
   /// </summary>
   internal class FollowSun : ITask
   {
+    private readonly IServiceProvider provider;
+    private readonly IAppMessageWriter appMessageWriter;
+
     /// <inheritdoc />
     public string Command => "followsun";
 
@@ -18,12 +23,18 @@
     /// <inheritdoc />
     public string Help => "follow <action>\nwhere action is start or stop";
 
+    public FollowSun(IServiceProvider provider, IAppMessageWriter appMessageWriter)
+    {
+      this.provider = provider;
+      this.appMessageWriter = appMessageWriter;
+    }
+
     /// <inheritdoc />
     public void Execute(string[] args)
     {
       if (args.Length != 1)
       {
-        Program.context.BluetoothSpp.SendString("Invalid number of arguments\n");
+        this.appMessageWriter.SendString("Invalid number of arguments\n");
         return;
       }
 
@@ -43,17 +54,19 @@
       {
         if (Program.context.SunFollowingThread != null)
         {
-          Program.context.BluetoothSpp.SendString("Already running...\n");
+          this.appMessageWriter.SendString("Already running...\n");
           return;
         }
 
-        Follower follower = new Follower();
+        var appMessageWriter = (IAppMessageWriter)provider.GetService(typeof(IAppMessageWriter));
+        Follower follower = new Follower(appMessageWriter);
+
         Program.context.SunFollowingThread = new Thread(new ThreadStart(follower.Start));
 
         // Start the thread.
         Program.context.SunFollowingThread.Start();
 
-        Program.context.BluetoothSpp.SendString("Following the sun...\n");
+        this.appMessageWriter.SendString("Following the sun...\n");
 
         return;
       }
@@ -71,6 +84,13 @@
 
   public class Follower
   {
+    public readonly IAppMessageWriter appMessageWriter;
+
+    public Follower(IAppMessageWriter appMessageWriter)
+    {
+      this.appMessageWriter = appMessageWriter;
+    }
+
     public void Start()
     {
       while (true)
@@ -106,7 +126,7 @@
 
           Debug.WriteLine($"Follower: moving the mirror to azimuth {azimuth} and zenith {zenith}");
 
-          var motorController = new MotorController();
+          var motorController = new MotorController(appMessageWriter);
           motorController.MoveMotor(MotorPlane.Azimuth, azimuth);
 
           Debug.WriteLine($"Follower: mirrors moved");

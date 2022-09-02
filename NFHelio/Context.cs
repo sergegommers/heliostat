@@ -1,6 +1,5 @@
 ﻿namespace NFHelio
 {
-  using nanoFramework.Device.Bluetooth.Spp;
   using NFCommon.Storage;
   using NFHelio.Devices;
   using System.Threading;
@@ -21,12 +20,6 @@
     }
 
     public Settings Settings
-    {
-      get;
-      set;
-    }
-
-    public IBluetoothSpp BluetoothSpp
     {
       get;
       set;
