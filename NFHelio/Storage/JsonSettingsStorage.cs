@@ -2,27 +2,38 @@
 {
   using nanoFramework.Json;
   using NFCommon.Storage;
+  using NFHelio.Devices;
   using System;
   using System.Diagnostics;
   using System.Text;
 
   public class JsonSettingsStorage : ISettingsStorage
   {
+    private readonly IServiceProvider serviceProvider;
+
+    public JsonSettingsStorage(IServiceProvider serviceProvider)
+    {
+      this.serviceProvider = serviceProvider;
+    }
+
     public SettingsBase ReadSettings()
     {
       try
       {
-        var eeprom = Program.context.EepromFactory.GetEeprom(Context.EepromAddress, 1);
+        var factory = (IEepromFactory)this.serviceProvider.GetService(typeof(IEepromFactory));
+        var eeprom = factory.Create();
 
         ushort initAddress = 0x0;
-        byte[] initBytes = eeprom.Read(initAddress, 6);
-        if (initBytes[0] != 0x55 || initBytes[1] != 0xAA)
+        byte[] initBytes = eeprom.Read(initAddress, 2);
+        if (initBytes == null || initBytes[0] != 0x55 || initBytes[1] != 0xAA)
         {
           Debug.WriteLine($"Settings can't be read, init bytes don't match");
           return null;
         }
 
-        var lenght = BitConverter.ToInt32(initBytes, 2);
+        ushort lenghtAddress = 0x2;
+        byte[] lenghtBytes = eeprom.Read(lenghtAddress, 4);
+        var lenght = BitConverter.ToInt32(lenghtBytes, 0);
 
         ushort settingsAddress = 0x6;
         byte[] settingsBytes = eeprom.Read(settingsAddress, lenght);
@@ -32,18 +43,14 @@
 
         return (Settings)JsonConvert.DeserializeObject(serializedSetttings, typeof(Settings));
       }
-      catch (OutOfMemoryException ex)
+      catch (Exception)
       {
         // This can happen when the settings contain new fields and we can't properly read\save them
         // To get around this, we clear all settings...
-        Settings settings = new Settings();
+        var settings = new Settings();
         WriteSettings(settings);
         Debug.WriteLine($"Settings can't be read, resetting them.");
 
-        return null;
-      }
-      catch
-      {
         return null;
       }
     }
@@ -53,7 +60,8 @@
       var serializedSetttings = JsonConvert.SerializeObject(settings);
       var length = serializedSetttings.Length;
 
-      var eeprom = Program.context.EepromFactory.GetEeprom(Context.EepromAddress, 1);
+      var factory = (IEepromFactory)this.serviceProvider.GetService(typeof(IEepromFactory));
+      var eeprom = factory.Create();
 
       ushort initAddress = 0x0;
       var initBytes = new byte[] { 0x55, 0xAA };

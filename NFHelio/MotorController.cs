@@ -14,11 +14,11 @@
 
   public class MotorController
   {
-    public readonly IAppMessageWriter appMessageWriter;
+    public readonly IServiceProvider serviceProvider;
 
-    public MotorController(IAppMessageWriter appMessageWriter)
+    public MotorController(IServiceProvider serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
+      this.serviceProvider = serviceProvider;
     }
 
     public void MoveMotor(MotorPlane plane, short angleDesired)
@@ -26,6 +26,8 @@
       int adcChannel;
       PwmChannel pwmPin1;
       PwmChannel pwmPin2;
+
+      var appMessageWriter = (IAppMessageWriter)serviceProvider.GetService(typeof(IAppMessageWriter));
 
       switch (plane)
       {
@@ -59,7 +61,8 @@
       short value = (short)AdcReader.GetValue(adcChannel, Context.AdcSampleSize);
 
       // get the desired value using the calibrated angle/value settings
-      var array = new CalibrationArray(Program.context.Settings.Aci, Program.context.Settings.Acv);
+      var settings = (Settings)this.serviceProvider.GetService(typeof(Settings));
+      var array = new CalibrationArray(settings.Aci, settings.Acv);
       array.GetCalibrationPoint(angleDesired, out short valueDesired);
 
       PwmChannel pwmPin;

@@ -6,32 +6,39 @@ namespace NFHelio
   using nanoFramework.Hardware.Esp32;
   using nanoFramework.Hosting;
   using NFCommon.Services;
+  using NFCommon.Storage;
   using NFHelio.Devices;
   using NFHelio.Services;
   using NFHelio.Storage;
 
+  /// <summary>
+  /// 
+  /// </summary>
   public static class Program
   {
     public static Context context = new Context();
 
+    /// <summary>
+    /// Defines the entry point of the application.
+    /// </summary>
     public static void Main()
     {
       Debug.WriteLine($"Starting HelioStat");
 
-      IHost host = CreateHostBuilder().Build();
-
       SetupPins();
 
-      context.EepromFactory = new AT24C32EepromFactory();
-      context.SettingsStorageFactory = new SimpleSettingsStorageFactory();
-      context.RealTimeClockFactory = new Ds3231RealTimeClockFactory();
+      IHost host = CreateHostBuilder().Build();
 
-      context.Settings = context.SettingsStorageFactory.GetSettingsStorage().ReadSettings() as Settings;
+      var settingsStorage = (ISettingsStorage)host.Services.GetService(typeof(ISettingsStorage));
+      var newSettings = settingsStorage.ReadSettings() as Settings;
       // if we can't read the settings then we start from scratch
-      if (context.Settings == null)
+      if (newSettings == null)
       {
-        context.Settings = new Settings();
+        newSettings = new Settings();
       }
+
+      var currentSettings = (Settings)host.Services.GetService(typeof(Settings));
+      currentSettings.Update(newSettings);
 
       Debug.WriteLine($"HelioStat is started, awaiting commands...");
 
@@ -39,14 +46,25 @@ namespace NFHelio
       host.Run();
     }
 
+    /// <summary>
+    /// Creates the host builder.
+    /// </summary>
+    /// <returns></returns>
     public static IHostBuilder CreateHostBuilder() =>
       Host.CreateDefaultBuilder()
         .ConfigureServices(services =>
         {
+          services.AddSingleton(typeof(Settings));
+          services.AddSingleton(typeof(ISettingsStorage), typeof(JsonSettingsStorage));
           services.AddSingleton(typeof(IBluetoothSpp), typeof(NordicSpp));
           services.AddSingleton(typeof(IAppMessageWriter), typeof(AppMessageWriter));
           services.AddTransient(typeof(ICommandHandlerService), typeof(CommandHandlerService));
           services.AddHostedService(typeof(BlueToothReceiver));
+          // IRealTimeClock defines the interface for a realtime clock.
+          // As we want our application to be independent of the implementation of IRealTimeClock we let it be created by a factory.
+          // Ds3231RealTimeClockFactory creates the IRealTimeClock instance and knows what parameters to pass in the constructor that are specific for this implementation.
+          services.AddSingleton(typeof(IRealTimeClockFactory), typeof(Ds3231RealTimeClockFactory));
+          services.AddSingleton(typeof(IEepromFactory), typeof(InternalFlashEepromFactory));
         });
 
     private static void SetupPins()

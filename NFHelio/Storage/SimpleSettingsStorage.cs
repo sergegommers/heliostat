@@ -1,19 +1,28 @@
 ﻿namespace NFHelio.Storage
 {
   using NFCommon.Storage;
+  using NFHelio.Devices;
   using System;
   using System.Collections;
   using System.Diagnostics;
 
   public class SimpleSettingsStorage : ISettingsStorage
   {
+    private readonly IServiceProvider serviceProvider;
+
+    public SimpleSettingsStorage(IServiceProvider serviceProvider)
+    {
+      this.serviceProvider = serviceProvider;
+    }
+
     public SettingsBase ReadSettings()
     {
       try
       {
         Debug.WriteLine($"Reading settings.");
 
-        var eeprom = Program.context.EepromFactory.GetEeprom(Context.EepromAddress, 1);
+        var factory = (IEepromFactory)this.serviceProvider.GetService(typeof(IEepromFactory));
+        var eeprom = factory.Create();
 
         ushort initAddress = 0x0;
         byte[] initBytes = eeprom.Read(initAddress, 6);
@@ -110,7 +119,8 @@
     {
       Debug.WriteLine($"Saving settings.");
 
-      var eeprom = Program.context.EepromFactory.GetEeprom(Context.EepromAddress, 1);
+      var factory = (IEepromFactory)this.serviceProvider.GetService(typeof(IEepromFactory));
+      var eeprom = factory.Create();
 
       ushort initAddress = 0x0;
       var initBytes = new byte[] { 0xAA, 0x55 };

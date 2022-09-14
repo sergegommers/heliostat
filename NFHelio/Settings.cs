@@ -12,6 +12,16 @@
       this.Zcv = new short[0];
     }
 
+    public void Update(Settings other)
+    {
+      this.Aci = other.Aci;
+      this.Acv = other.Acv;
+      this.Zci = other.Zci;
+      this.Zcv = other.Zcv;
+      this.Longitude = other.Longitude;
+      this.Latitude = other.Latitude;
+    }
+
     // Observer longitude (negative west of Greenwich)
     // valid range: -180 to 180 degrees
     public double Longitude

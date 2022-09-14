@@ -1,16 +1,16 @@
 ﻿namespace NFHelio.Tasks
 {
-  using NFCommon.Services;
+  using NFCommon.Storage;
+  using NFHelio.Devices;
   using NFSpa;
+  using System;
   using System.Diagnostics;
 
   /// <summary>
   /// Calculates the position of the sun and some other parameters
   /// </summary>
-  internal class CalcSpa : ITask
+  internal class CalcSpa : BaseTask, ITask
   {
-    private readonly IAppMessageWriter appMessageWriter;
-
     /// <inheritdoc />
     string ITask.Command => "calcspa";
 
@@ -21,24 +21,28 @@
     string ITask.Help => "No further info";
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CalcSpa"/> class.
+    /// Initializes a new instance of the <see cref="CalcSpa" /> class.
     /// </summary>
-    /// <param name="appMessageWriter">The application message writer.</param>
-    public CalcSpa(IAppMessageWriter appMessageWriter)
+    /// <param name="serviceProvider">The service provider.</param>
+    public CalcSpa(IServiceProvider serviceProvider)
+    : base(serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
     public void Execute(string[] args)
     {
-      var realTimeClock = Program.context.RealTimeClockFactory.GetRealTimeClock(Context.RtcAddress, 1);
+      var realTimeClockFactory = (IRealTimeClockFactory)this.GetServiceProvider().GetService(typeof(IRealTimeClockFactory));
+      var realTimeClock = realTimeClockFactory.Create();
+      
       var dt = realTimeClock.GetTime();
 
-      var settings = Program.context.SettingsStorageFactory.GetSettingsStorage().ReadSettings() as Settings;
+      var settingsStorage = (ISettingsStorage)this.GetServiceProvider().GetService(typeof(ISettingsStorage));
+
+      var settings = settingsStorage.ReadSettings() as Settings;
       if (settings == null)
       {
-        this.appMessageWriter.SendString("Calculation failed, can't read settings\n");
+        this.SendString("Calculation failed, can't read settings\n");
 
         return;
       }
@@ -66,16 +70,16 @@
       if (result == 0)
       {
         // display the results inside the SPA structure
-        this.appMessageWriter.SendString(string.Format("Azimuth:       {0,12:F6}\n", spa.azimuth));
-        this.appMessageWriter.SendString(string.Format("Zenith:        {0,12:F6}\n", spa.zenith));
+        this.SendString(string.Format("Azimuth:       {0,12:F6}\n", spa.azimuth));
+        this.SendString(string.Format("Zenith:        {0,12:F6}\n", spa.zenith));
 
         min = 60.0 * (spa.sunrise - (int)(spa.sunrise));
         sec = 60.0 * (min - (int)min);
-        this.appMessageWriter.SendString(string.Format("Sunrise:       {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunrise), (int)min, (int)sec));
+        this.SendString(string.Format("Sunrise:       {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunrise), (int)min, (int)sec));
 
         min = 60.0 * (spa.sunset - (int)(spa.sunset));
         sec = 60.0 * (min - (int)min);
-        this.appMessageWriter.SendString(string.Format("Sunset:        {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunset), (int)min, (int)sec));
+        this.SendString(string.Format("Sunset:        {0,2:D2}:{1,2:D2}:{2,2:D2}\n", (int)(spa.sunset), (int)min, (int)sec));
       }
       else
       {

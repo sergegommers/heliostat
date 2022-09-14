@@ -21,14 +21,16 @@
     <Compile Include="AdcReader.cs" />
     <Compile Include="Devices\AT24C32.cs" />
     <Compile Include="Devices\AT24C32EepromFactory.cs" />
+    <Compile Include="Devices\IEepromFactory.cs" />
+    <Compile Include="Devices\InternalFlash.cs" />
+    <Compile Include="Devices\InternalFlashEepromFactory.cs" />
+    <Compile Include="Devices\IRealTimeClockFactory.cs" />
+    <Compile Include="Devices\Ds3231RealTimeClockFactory.cs" />
     <Compile Include="Services\AppMessageWriter.cs" />
     <Compile Include="Services\CommandHandlerService.cs" />
     <Compile Include="Context.cs" />
-    <Compile Include="Devices\Ds3231RealTimeClockFactory.cs" />
-    <Compile Include="Devices\EepromFactory.cs" />
     <Compile Include="Devices\IEeprom.cs" />
     <Compile Include="Devices\IRealTimeClock.cs" />
-    <Compile Include="Devices\RealTimeClockFactory.cs" />
     <Compile Include="MotorController.cs" />
     <Compile Include="GPIOPort.cs" />
     <Compile Include="Program.cs" />
@@ -38,9 +40,7 @@
     <Compile Include="Services\ICommandHandlerService.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Storage\JsonSettingsStorage.cs" />
-    <Compile Include="Storage\JsonSettingsStorageFactory.cs" />
     <Compile Include="Storage\SimpleSettingsStorage.cs" />
-    <Compile Include="Storage\SimpleSettingsStorageFactory.cs" />
     <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CalcSpa.cs" />
     <Compile Include="Tasks\Calibrate.cs" />
@@ -102,6 +102,9 @@
     </Reference>
     <Reference Include="System.Device.Pwm">
       <HintPath>..\packages\nanoFramework.System.Device.Pwm.1.0.1\lib\System.Device.Pwm.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem">
+      <HintPath>..\packages\nanoFramework.System.IO.FileSystem.1.1.2\lib\System.IO.FileSystem.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Streams">
       <HintPath>..\packages\nanoFramework.System.IO.Streams.1.1.9\lib\System.IO.Streams.dll</HintPath>

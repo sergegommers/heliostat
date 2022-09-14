@@ -2,14 +2,14 @@
 {
   using NFCommon;
   using NFCommon.Services;
+  using NFCommon.Storage;
+  using System;
 
   /// <summary>
   /// Calibrates the potentiometers that read out the azimuth and zenith values
   /// </summary>
-  internal class Calibrate : ITask
+  internal class Calibrate : BaseTask, ITask
   {
-    private readonly IAppMessageWriter appMessageWriter;
-
     /// <inheritdoc />
     string ITask.Command => "cal";
 
@@ -19,9 +19,9 @@
     /// <inheritdoc />
     string ITask.Help => "cal <plane> <angle> where plane is a or z\nor r to reset existing values.\nAngle is the current angle.";
 
-    public Calibrate(IAppMessageWriter appMessageWriter)
+    public Calibrate(IServiceProvider serviceProvider)
+    : base(serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
@@ -29,9 +29,13 @@
     {
       if (args.Length != 2)
       {
-        this.appMessageWriter.SendString("Invalid number of arguments\n");
+        this.SendString("Invalid number of arguments\n");
         return;
       }
+
+      var settingsStorage = (ISettingsStorage)this.GetServiceProvider().GetService(typeof(ISettingsStorage));
+      var settings = (Settings)this.GetServiceProvider().GetService(typeof(Settings));
+
 
       int channelNumber;
       switch (args[0].ToLower())
@@ -43,23 +47,23 @@
           channelNumber = Context.ZenithAdcChannel;
           break;
         case "r":
-          Program.context.Settings.Aci = new short[0];
-          Program.context.Settings.Acv = new short[0];
-          Program.context.Settings.Zci = new short[0];
-          Program.context.Settings.Zcv = new short[0];
-          Program.context.SettingsStorageFactory.GetSettingsStorage().WriteSettings(Program.context.Settings);
+          settings.Aci = new short[0];
+          settings.Acv = new short[0];
+          settings.Zci = new short[0];
+          settings.Zcv = new short[0];
+          settingsStorage.WriteSettings(settings);
 
-          this.appMessageWriter.SendString("Mirror calibration is cleared\n");
+          this.SendString("Mirror calibration is cleared\n");
           return;
         default:
-          this.appMessageWriter.SendString("Unknown plane to calibrate\n");
+          this.SendString("Unknown plane to calibrate\n");
           return;
       }
 
       bool result = int.TryParse(args[1], out int angle);
       if (!result)
       {
-        this.appMessageWriter.SendString("Can't convert given angle to an integer\n");
+        this.SendString("Can't convert given angle to an integer\n");
         return;
       }
 
@@ -69,24 +73,24 @@
       {
         case "a":
           {
-            var array = new CalibrationArray(Program.context.Settings.Aci, Program.context.Settings.Acv);
+            var array = new CalibrationArray(settings.Aci, settings.Acv);
             array.AddCalibrationPoint((short)angle, (short)value);
-            Program.context.Settings.Aci = array.GetIndexes();
-            Program.context.Settings.Acv = array.GetValues();
+            settings.Aci = array.GetIndexes();
+            settings.Acv = array.GetValues();
             break;
           }
         case "z":
           {
-            var array = new CalibrationArray(Program.context.Settings.Zci, Program.context.Settings.Zcv);
+            var array = new CalibrationArray(settings.Zci, settings.Zcv);
             array.AddCalibrationPoint((short)angle, (short)value);
-            Program.context.Settings.Zci = array.GetIndexes();
-            Program.context.Settings.Zcv = array.GetValues();
+            settings.Zci = array.GetIndexes();
+            settings.Zcv = array.GetValues();
             break;
           }
       }
 
-      Program.context.SettingsStorageFactory.GetSettingsStorage().WriteSettings(Program.context.Settings);
-      this.appMessageWriter.SendString($"Adc value for plane {args[0]}\nset to angle {(short)angle} and value {(short)value}\n");
+      settingsStorage.WriteSettings(settings);
+      this.SendString($"Adc value for plane {args[0]}\nset to angle {(short)angle} and value {(short)value}\n");
     }
   }
 }

@@ -14,6 +14,11 @@
       this.appMessageWriter = (IAppMessageWriter)serviceProvider.GetService(typeof(IAppMessageWriter));
     }
 
+    protected IServiceProvider GetServiceProvider()
+    {
+      return serviceProvider;
+    }
+
     protected void SendString(string message)
     {
       this.appMessageWriter.SendString(message);

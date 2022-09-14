@@ -3,7 +3,6 @@
   using System.Collections;
   using NFHelio.Tasks;
   using System.Diagnostics;
-  using NFHelio;
   using System;
   using NFCommon.Services;
 
@@ -58,13 +57,13 @@
         var tasks = new ArrayList
         {
           new TestOnboardLed(this.provider),
-          new FollowSun(this.provider, this.appMessageWriter),
-          new Calibrate(this.appMessageWriter),
-          new MoveMirror(this.provider, this.appMessageWriter),
-          new CalcSpa(this.appMessageWriter),
-          new SetTime(this.appMessageWriter),
-          new SetPosition(this.appMessageWriter),
-          new GetTime(this.appMessageWriter),
+          new FollowSun(this.provider),
+          new Calibrate(this.provider),
+          new MoveMirror(this.provider),
+          new CalcSpa(this.provider),
+          new SetTime(this.provider),
+          new SetPosition(this.provider),
+          new GetTime(this.provider),
           new FindFreeRam(this.appMessageWriter),
           new FreeMem(this.appMessageWriter),
           new TestAdc(this.appMessageWriter),

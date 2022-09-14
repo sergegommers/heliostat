@@ -1,10 +1,10 @@
 ﻿namespace NFHelio.Devices
 {
-  internal class Ds3231RealTimeClockFactory : RealTimeClockFactory
+  public class Ds3231RealTimeClockFactory : IRealTimeClockFactory
   {
-    public override IRealTimeClock GetRealTimeClock(int address, int i2cBus)
+    public IRealTimeClock Create()
     {
-      return new Ds3231RealTimeClock(address, i2cBus);
+      return new Ds3231RealTimeClock(Context.RtcAddress, 1);
     }
   }
 }

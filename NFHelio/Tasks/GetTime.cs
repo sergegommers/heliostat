@@ -1,14 +1,13 @@
-﻿using NFCommon.Services;
-
-namespace NFHelio.Tasks
+﻿namespace NFHelio.Tasks
 {
+  using NFHelio.Devices;
+  using System;
+
   /// <summary>
   /// Returns the time
   /// </summary>
-  internal class GetTime : ITask
+  internal class GetTime : BaseTask, ITask
   {
-    private readonly IAppMessageWriter appMessageWriter;
-
     /// <inheritdoc />
     string ITask.Command => "gettime";
 
@@ -19,21 +18,23 @@ namespace NFHelio.Tasks
     string ITask.Help => "No further info";
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GetTime"/> class.
+    /// Initializes a new instance of the <see cref="GetTime" /> class.
     /// </summary>
-    /// <param name="appMessageWriter">The application message writer.</param>
-    public GetTime(IAppMessageWriter appMessageWriter)
+    /// <param name="serviceProvider">The service provider.</param>
+    public GetTime(IServiceProvider serviceProvider)
+    : base(serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
     public void Execute(string[] args)
     {
-      var realTimeClock = Program.context.RealTimeClockFactory.GetRealTimeClock(Context.RtcAddress, 1);
+      var realTimeClockFactory = (IRealTimeClockFactory)this.GetServiceProvider().GetService(typeof(IRealTimeClockFactory));
+      var realTimeClock = realTimeClockFactory.Create();
+
       var dt = realTimeClock.GetTime();
 
-      this.appMessageWriter.SendString($"Time: {dt.ToString("yyyy/MM/dd HH:mm:ss")}\n");
+      this.SendString($"Time: {dt.ToString("yyyy/MM/dd HH:mm:ss")}\n");
     }
   }
 }

@@ -1,14 +1,13 @@
-﻿using NFCommon.Services;
-
-namespace NFHelio.Tasks
+﻿namespace NFHelio.Tasks
 {
-  /// <summary>
-  /// Sets the geographical position
-  /// </summary>
-  internal class SetPosition : ITask
-  {
-    private readonly IAppMessageWriter appMessageWriter;
+  using NFCommon.Storage;
+  using System;
 
+  /// <summary>
+  /// Stores the geographical position in the <see cref="Settings"/>
+  /// </summary>
+  internal class SetPosition : BaseTask, ITask
+  {
     /// <inheritdoc />
     string ITask.Command => "setpos";
 
@@ -22,9 +21,9 @@ namespace NFHelio.Tasks
     /// Initializes a new instance of the <see cref="SetPosition"/> class.
     /// </summary>
     /// <param name="appMessageWriter">The application message writer.</param>
-    public SetPosition(IAppMessageWriter appMessageWriter)
+    public SetPosition(IServiceProvider serviceProvider)
+    : base(serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
@@ -32,17 +31,20 @@ namespace NFHelio.Tasks
     {
       if (args.Length != 2)
       {
-        this.appMessageWriter.SendString("To set the position, provide latitude longitude\n");
+        this.SendString("To set the position, provide latitude longitude\n");
         return;
       }
 
-      Program.context.Settings.Latitude = double.Parse(args[0]);
-      Program.context.Settings.Longitude = double.Parse(args[1]);
+      var settings = (Settings)this.GetServiceProvider().GetService(typeof(Settings));
+      settings.Latitude = double.Parse(args[0]);
+      settings.Longitude = double.Parse(args[1]);
 
-      Program.context.SettingsStorageFactory.GetSettingsStorage().WriteSettings(Program.context.Settings);
+      var settingsStorage = (ISettingsStorage)this.GetServiceProvider().GetService(typeof(ISettingsStorage));
 
-      var settings = Program.context.SettingsStorageFactory.GetSettingsStorage().ReadSettings() as Settings;
-      this.appMessageWriter.SendString($"Latitude longitude set to {settings.Latitude}, {settings.Longitude}\n");
+      settingsStorage.WriteSettings(settings);
+
+      var readBackSettings = settingsStorage.ReadSettings() as Settings;
+      this.SendString($"Latitude longitude set to {readBackSettings.Latitude}, {readBackSettings.Longitude}\n");
     }
   }
 }

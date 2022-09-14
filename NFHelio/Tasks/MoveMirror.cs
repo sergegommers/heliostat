@@ -3,11 +3,8 @@ using System;
 
 namespace NFHelio.Tasks
 {
-  internal class MoveMirror : ITask
+  internal class MoveMirror : BaseTask, ITask
   {
-    private readonly IServiceProvider provider;
-    private readonly IAppMessageWriter appMessageWriter;
-
     /// <inheritdoc />
     string ITask.Command => "move";
 
@@ -17,10 +14,9 @@ namespace NFHelio.Tasks
     /// <inheritdoc />
     string ITask.Help => "move <plane> <angle> where plane is a or z,\nangle is the desired angle";
 
-    public MoveMirror(IServiceProvider provider, IAppMessageWriter appMessageWriter)
+    public MoveMirror(IServiceProvider serviceProvider)
+    : base(serviceProvider)
     {
-      this.provider = provider;
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
@@ -28,7 +24,7 @@ namespace NFHelio.Tasks
     {
       if (args.Length != 2)
       {
-        this.appMessageWriter.SendString("To move, provide a or z and angle\n");
+        this.SendString("To move, provide a or z and angle\n");
         return;
       }
 
@@ -42,15 +38,13 @@ namespace NFHelio.Tasks
           plane = MotorPlane.Zenith;
           break;
         default:
-          this.appMessageWriter.SendString("Unknown plane\n");
+          this.SendString("Unknown plane\n");
           return;
       }
 
       short angleDesired = short.Parse(args[1]);
 
-      var appMessageWriter = (IAppMessageWriter)provider.GetService(typeof(IAppMessageWriter));
-
-      var motorController = new MotorController(appMessageWriter);
+      var motorController = new MotorController(this.GetServiceProvider());
       motorController.MoveMotor(plane, angleDesired);
     }
   }

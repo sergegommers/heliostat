@@ -1,6 +1,9 @@
 ﻿namespace NFHelio.Tasks
 {
+  using nanoFramework.DependencyInjection;
   using NFCommon.Services;
+  using NFCommon.Storage;
+  using NFHelio.Devices;
   using NFSpa;
   using System;
   using System.Diagnostics;
@@ -9,11 +12,8 @@
   /// <summary>
   /// Follows the sun across the sky
   /// </summary>
-  internal class FollowSun : ITask
+  internal class FollowSun : BaseTask, ITask
   {
-    private readonly IServiceProvider provider;
-    private readonly IAppMessageWriter appMessageWriter;
-
     /// <inheritdoc />
     public string Command => "followsun";
 
@@ -23,10 +23,9 @@
     /// <inheritdoc />
     public string Help => "follow <action>\nwhere action is start or stop";
 
-    public FollowSun(IServiceProvider provider, IAppMessageWriter appMessageWriter)
+    public FollowSun(IServiceProvider serviceProvider)
+    : base(serviceProvider)
     {
-      this.provider = provider;
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
@@ -34,7 +33,7 @@
     {
       if (args.Length != 1)
       {
-        this.appMessageWriter.SendString("Invalid number of arguments\n");
+        this.SendString("Invalid number of arguments\n");
         return;
       }
 
@@ -54,19 +53,18 @@
       {
         if (Program.context.SunFollowingThread != null)
         {
-          this.appMessageWriter.SendString("Already running...\n");
+          this.SendString("Already running...\n");
           return;
         }
 
-        var appMessageWriter = (IAppMessageWriter)provider.GetService(typeof(IAppMessageWriter));
-        Follower follower = new Follower(appMessageWriter);
+        Follower follower = new Follower(this.GetServiceProvider());
 
         Program.context.SunFollowingThread = new Thread(new ThreadStart(follower.Start));
 
         // Start the thread.
         Program.context.SunFollowingThread.Start();
 
-        this.appMessageWriter.SendString("Following the sun...\n");
+        this.SendString("Following the sun...\n");
 
         return;
       }
@@ -84,23 +82,27 @@
 
   public class Follower
   {
-    public readonly IAppMessageWriter appMessageWriter;
+    private readonly IServiceProvider serviceProvider;
 
-    public Follower(IAppMessageWriter appMessageWriter)
+    public Follower(IServiceProvider serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
+      this.serviceProvider = serviceProvider;
     }
 
     public void Start()
     {
       while (true)
       {
+        var realTimeClockFactory = (IRealTimeClockFactory)this.serviceProvider.GetService(typeof(IRealTimeClockFactory));
+        var realTimeClock = realTimeClockFactory.Create();
+        
+        var settingsStorage = (ISettingsStorage)this.serviceProvider.GetService(typeof(ISettingsStorage));
+
         Debug.WriteLine($"Follower: getting the time");
-        var realTimeClock = Program.context.RealTimeClockFactory.GetRealTimeClock(Context.RtcAddress, 1);
         var dt = realTimeClock.GetTime();
 
         Debug.WriteLine($"Follower: getting the position");
-        Settings settings = Program.context.SettingsStorageFactory.GetSettingsStorage().ReadSettings() as Settings;
+        Settings settings = settingsStorage.ReadSettings() as Settings;
 
         Debug.WriteLine($"Follower: calculating the angles");
         Spa_data spa = new()
@@ -126,7 +128,7 @@
 
           Debug.WriteLine($"Follower: moving the mirror to azimuth {azimuth} and zenith {zenith}");
 
-          var motorController = new MotorController(appMessageWriter);
+          var motorController = new MotorController(this.serviceProvider);
           motorController.MoveMotor(MotorPlane.Azimuth, azimuth);
 
           Debug.WriteLine($"Follower: mirrors moved");
