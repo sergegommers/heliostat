@@ -6,21 +6,36 @@
   using System.Device.Pwm;
   using System.Diagnostics;
 
+  /// <summary>
+  /// An enum for the planes we can move in
+  /// </summary>
   public enum MotorPlane
   {
     Azimuth,
     Zenith
   }
 
+  /// <summary>
+  /// A class for controlling motors
+  /// </summary>
   public class MotorController
   {
     public readonly IServiceProvider serviceProvider;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MotorController"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider.</param>
     public MotorController(IServiceProvider serviceProvider)
     {
       this.serviceProvider = serviceProvider;
     }
 
+    /// <summary>
+    /// Moves the motor.
+    /// </summary>
+    /// <param name="plane">The plane.</param>
+    /// <param name="angleDesired">The angle desired.</param>
     public void MoveMotor(MotorPlane plane, short angleDesired)
     {
       int adcChannel;

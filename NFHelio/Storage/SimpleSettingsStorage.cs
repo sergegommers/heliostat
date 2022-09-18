@@ -6,15 +6,24 @@
   using System.Collections;
   using System.Diagnostics;
 
+  /// <summary>
+  /// An implementation of <see cref="ISettingsStorage"/> that read\writes the application settings to the configured <see cref="IEeprom"/> as a binary data
+  /// </summary>
+  /// <seealso cref="NFCommon.Storage.ISettingsStorage" />
   public class SimpleSettingsStorage : ISettingsStorage
   {
     private readonly IServiceProvider serviceProvider;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SimpleSettingsStorage"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider.</param>
     public SimpleSettingsStorage(IServiceProvider serviceProvider)
     {
       this.serviceProvider = serviceProvider;
     }
 
+    /// <inheritdoc />
     public SettingsBase ReadSettings()
     {
       try
@@ -115,6 +124,7 @@
       }
     }
 
+    /// <inheritdoc />
     public void WriteSettings(SettingsBase settingsBase)
     {
       Debug.WriteLine($"Saving settings.");

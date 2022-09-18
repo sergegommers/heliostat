@@ -7,15 +7,24 @@
   using System.Diagnostics;
   using System.Text;
 
+  /// <summary>
+  /// An implementation of <see cref="ISettingsStorage"/> that read\writes the application settings to the configured <see cref="IEeprom"/> as a Json file
+  /// </summary>
+  /// <seealso cref="NFCommon.Storage.ISettingsStorage" />
   public class JsonSettingsStorage : ISettingsStorage
   {
     private readonly IServiceProvider serviceProvider;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="JsonSettingsStorage"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider.</param>
     public JsonSettingsStorage(IServiceProvider serviceProvider)
     {
       this.serviceProvider = serviceProvider;
     }
 
+    /// <inheritdoc />
     public SettingsBase ReadSettings()
     {
       try
@@ -55,6 +64,7 @@
       }
     }
 
+    /// <inheritdoc />
     public void WriteSettings(SettingsBase settings)
     {
       var serializedSetttings = JsonConvert.SerializeObject(settings);

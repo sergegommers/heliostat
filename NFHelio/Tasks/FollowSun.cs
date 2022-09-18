@@ -1,7 +1,5 @@
 ﻿namespace NFHelio.Tasks
 {
-  using nanoFramework.DependencyInjection;
-  using NFCommon.Services;
   using NFCommon.Storage;
   using NFHelio.Devices;
   using NFSpa;
@@ -21,7 +19,7 @@
     public string Description => "Follows the sun";
 
     /// <inheritdoc />
-    public string Help => "follow <action>\nwhere action is start or stop";
+    public string Help => "followsun <action>\nwhere action is start or stop";
 
     public FollowSun(IServiceProvider serviceProvider)
     : base(serviceProvider)

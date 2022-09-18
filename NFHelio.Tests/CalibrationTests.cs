@@ -4,6 +4,9 @@
   using NFCommon;
   using System.Collections;
 
+  /// <summary>
+  /// A test class for the <see cref="CalibrationArray"/>
+  /// </summary>
   [TestClass]
   public class CalibrationTests
   {

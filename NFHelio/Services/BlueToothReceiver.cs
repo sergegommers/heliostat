@@ -6,12 +6,21 @@
   using System.Diagnostics;
   using System.Threading;
 
+  /// <summary>
+  /// A <see cref="BackgroundService"/> for handling Bluetooth events
+  /// </summary>
+  /// <seealso cref="nanoFramework.Hosting.BackgroundService" />
   internal class BlueToothReceiver : BackgroundService
   {
     private readonly IBluetoothSpp bluetoothSpp;
 
     private readonly IServiceProvider serviceProvider;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BlueToothReceiver"/> class.
+    /// </summary>
+    /// <param name="bluetoothSpp">The bluetooth SPP.</param>
+    /// <param name="serviceProvider">The service provider.</param>
     public BlueToothReceiver(
       IBluetoothSpp bluetoothSpp,
       IServiceProvider serviceProvider)
@@ -20,6 +29,9 @@
       this.serviceProvider = serviceProvider;
     }
 
+    /// <summary>
+    /// This method is called when the <see cref="T:nanoFramework.Hosting.IHostedService" /> starts.
+    /// </summary>
     protected override void ExecuteAsync()
     {
       // Add event handles for received data and Connections 

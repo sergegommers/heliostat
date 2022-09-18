@@ -12,7 +12,7 @@ namespace NFHelio
   using NFHelio.Storage;
 
   /// <summary>
-  /// 
+  /// The main program
   /// </summary>
   public static class Program
   {

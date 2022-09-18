@@ -4,10 +4,18 @@
   using System;
   using System.Device.I2c;
 
+  /// <summary>
+  /// Implements the <see cref="IRealTimeClock"/> interface for the Ds3231 real time clock
+  /// </summary>
   public class Ds3231RealTimeClock : IRealTimeClock
   {
     private readonly Ds3231 ds3231;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Ds3231RealTimeClock"/> class.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="i2cBus">The i2c bus.</param>
     public Ds3231RealTimeClock(int address, int i2cBus)
     {
       var settings = new I2cConnectionSettings(i2cBus, address);

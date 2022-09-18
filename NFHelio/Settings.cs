@@ -2,8 +2,15 @@
 {
   using NFCommon.Storage;
 
+  /// <summary>
+  /// The settings for this application
+  /// </summary>
+  /// <seealso cref="NFCommon.Storage.SettingsBase" />
   public class Settings : SettingsBase
   {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Settings"/> class.
+    /// </summary>
     public Settings()
     {
       this.Aci = new short[0];
@@ -12,6 +19,10 @@
       this.Zcv = new short[0];
     }
 
+    /// <summary>
+    /// Updates the specified other.
+    /// </summary>
+    /// <param name="other">The other.</param>
     public void Update(Settings other)
     {
       this.Aci = other.Aci;
@@ -38,24 +49,36 @@
       set;
     }
 
+    /// <summary>
+    /// Gets or sets the array with azimuth indexes
+    /// </summary>
     public short[] Aci
     {
       get;
       set;
     }
 
+    /// <summary>
+    /// Gets or sets the array with azimuth values
+    /// </summary>
     public short[] Acv
     {
       get;
       set;
     }
 
+    /// <summary>
+    /// Gets or sets the array with zenith indexes
+    /// </summary>
     public short[] Zci
     {
       get;
       set;
     }
 
+    /// <summary>
+    /// Gets or sets the array with zenith values
+    /// </summary>
     public short[] Zcv
     {
       get;
