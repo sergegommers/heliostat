@@ -7,24 +7,24 @@
   /// <summary>
   /// Tests the onboard led
   /// </summary>
-  internal class TestOnboardLed : BaseTask, ITask
+  internal class TestOnboardLed : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "testled";
+    public override string Command => "testled";
 
     /// <inheritdoc />
-    string ITask.Description => "Tests the onboard led";
+    public override string Description => "Tests the onboard led";
 
     /// <inheritdoc />
-    string ITask.Help => "No further info";
+    public override string Help => "No further info";
 
     public TestOnboardLed(IServiceProvider serviceProvider)
       :base(serviceProvider)
-      {
-      }
+    {
+    }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       var pwmPin = PwmChannel.CreateFromPin((int)GPIOPort.ESP32_Onboard_Led, 40000, 0);
 

@@ -6,28 +6,28 @@
   /// <summary>
   /// Sets the time
   /// </summary>
-  internal class SetTime : BaseTask,ITask
+  internal class SetTime : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "settime";
+    public override string Command => "settime";
 
     /// <inheritdoc />
-    string ITask.Description => "Sets the time of the real time clock";
+    public override string Description => "Sets the time of the real time clock";
 
     /// <inheritdoc />
-    string ITask.Help => "settime <yyyy> <mm> <dd> <hh> <mm> <ss>\nwith the time in UTC";
+    public override string Help => "settime <yyyy> <mm> <dd> <hh> <mm> <ss>\nwith the time in UTC";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SetTime" /> class.
     /// </summary>
     /// <param name="serviceProvider">The service provider.</param>
     public SetTime(IServiceProvider serviceProvider)
-    : base(serviceProvider)
+      : base(serviceProvider)
     {
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       if (args.Length != 6)
       {

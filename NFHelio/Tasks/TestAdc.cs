@@ -9,36 +9,33 @@
   /// <summary>
   /// Tests the ADC
   /// </summary>
-  internal class TestAdc : ITask
+  internal class TestAdc : BaseTask
   {
-    private readonly IAppMessageWriter appMessageWriter;
+    /// <inheritdoc />
+    public override string Command => "testadc";
 
     /// <inheritdoc />
-    string ITask.Command => "testadc";
+    public override string Description => "Tests the adc controller";
 
     /// <inheritdoc />
-    string ITask.Description => "Tests the adc controller";
-
-    /// <inheritdoc />
-    string ITask.Help => "testadc <plane> <samples> where plane is a or z\nand samples is the number of measurements to take";
+    public override string Help => "testadc <plane> <samples> where plane is a or z\nand samples is the number of measurements to take";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestAdc"/> class.
     /// </summary>
-    /// <param name="appMessageWriter">The application message writer.</param>
-    public TestAdc(IAppMessageWriter appMessageWriter)
+    public TestAdc(IServiceProvider serviceProvider)
+      : base(serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       var adc = new AdcController();
 
       if (args.Length < 1)
       {
-        this.appMessageWriter.SendString("To test, provide a or z and (optionally) #samples\n");
+        this.SendString("To test, provide a or z and (optionally) #samples\n");
         return;
       }
 
@@ -52,7 +49,7 @@
           adcChannelNumber = Context.ZenithAdcChannel;
           break;
         default:
-          this.appMessageWriter.SendString("Unknown plane\n");
+          this.SendString("Unknown plane\n");
           return;
       }
 
@@ -81,7 +78,7 @@
         value /= setSize;
         percent /= setSize;
 
-        this.appMessageWriter.SendString($"value = {(int)value}, ratio = {percent}\n");
+        this.SendString($"value = {(int)value}, ratio = {percent}\n");
 
         value = 0;
         percent = 0;
@@ -89,7 +86,7 @@
         Thread.Sleep(1000);
       }
 
-      this.appMessageWriter.SendString($"Done testing adc\n");
+      this.SendString($"Done testing adc\n");
     }
   }
 }

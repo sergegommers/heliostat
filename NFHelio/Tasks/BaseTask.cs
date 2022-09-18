@@ -6,7 +6,7 @@
   /// <summary>
   /// A base class for all Tasks.
   /// </summary>
-  internal class BaseTask
+  internal abstract class BaseTask: ITask
   {
     private readonly IServiceProvider serviceProvider;
     private readonly IAppMessageWriter appMessageWriter;
@@ -20,6 +20,18 @@
       this.serviceProvider = serviceProvider;
       this.appMessageWriter = (IAppMessageWriter)serviceProvider.GetService(typeof(IAppMessageWriter));
     }
+
+    /// <inheritdoc />
+    public abstract string Command { get; }
+
+    /// <inheritdoc />
+    public abstract string Description { get; }
+
+    /// <inheritdoc />
+    public abstract string Help { get; }
+
+    /// <inheritdoc />
+    public abstract void Execute(string[] args);
 
     protected IServiceProvider GetServiceProvider()
     {

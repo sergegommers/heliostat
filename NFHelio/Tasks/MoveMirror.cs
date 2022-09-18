@@ -1,26 +1,25 @@
-﻿using NFCommon.Services;
-using System;
+﻿using System;
 
 namespace NFHelio.Tasks
 {
-  internal class MoveMirror : BaseTask, ITask
+  internal class MoveMirror : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "move";
+    public override string Command => "move";
 
     /// <inheritdoc />
-    string ITask.Description => "Moves the mirror";
+    public override string Description => "Moves the mirror";
 
     /// <inheritdoc />
-    string ITask.Help => "move <plane> <angle> where plane is a or z,\nangle is the desired angle";
+    public override string Help => "move <plane> <angle> where plane is a or z,\nangle is the desired angle";
 
     public MoveMirror(IServiceProvider serviceProvider)
-    : base(serviceProvider)
+      : base(serviceProvider)
     {
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       if (args.Length != 2)
       {

@@ -1,31 +1,30 @@
 ﻿namespace NFHelio.Tasks
 {
   using NFCommon;
-  using NFCommon.Services;
   using NFCommon.Storage;
   using System;
 
   /// <summary>
   /// Calibrates the potentiometers that read out the azimuth and zenith values
   /// </summary>
-  internal class Calibrate : BaseTask, ITask
+  internal class Calibrate : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "cal";
+    public override string Command => "cal";
 
     /// <inheritdoc />
-    string ITask.Description => "Calibrates the azimuth and zenith angles";
+    public override string Description => "Calibrates the azimuth and zenith angles";
 
     /// <inheritdoc />
-    string ITask.Help => "cal <plane> <angle> where plane is a or z\nor r to reset existing values.\nAngle is the current angle.";
+    public override string Help => "cal <plane> <angle> where plane is a or z\nor r to reset existing values.\nAngle is the current angle.";
 
     public Calibrate(IServiceProvider serviceProvider)
-    : base(serviceProvider)
+      : base(serviceProvider)
     {
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       if (args.Length != 2)
       {

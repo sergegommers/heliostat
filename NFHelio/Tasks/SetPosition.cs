@@ -6,28 +6,28 @@
   /// <summary>
   /// Stores the geographical position in the <see cref="Settings"/>
   /// </summary>
-  internal class SetPosition : BaseTask, ITask
+  internal class SetPosition : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "setpos";
+    public override string Command => "setpos";
 
     /// <inheritdoc />
-    string ITask.Description => "Sets the position as latitude longitude";
+    public override string Description => "Sets the position as latitude longitude";
 
     /// <inheritdoc />
-    string ITask.Help => "setpos <latitude> <longitude>\nwith both values as doubles";
+    public override string Help => "setpos <latitude> <longitude>\nwith both values as doubles";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SetPosition"/> class.
     /// </summary>
     /// <param name="appMessageWriter">The application message writer.</param>
     public SetPosition(IServiceProvider serviceProvider)
-    : base(serviceProvider)
+      : base(serviceProvider)
     {
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       if (args.Length != 2)
       {

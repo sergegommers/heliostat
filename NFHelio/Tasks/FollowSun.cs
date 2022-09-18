@@ -10,24 +10,24 @@
   /// <summary>
   /// Follows the sun across the sky
   /// </summary>
-  internal class FollowSun : BaseTask, ITask
+  internal class FollowSun : BaseTask
   {
     /// <inheritdoc />
-    public string Command => "followsun";
+    public override string Command => "followsun";
 
     /// <inheritdoc />
-    public string Description => "Follows the sun";
+    public override string Description => "Follows the sun";
 
     /// <inheritdoc />
-    public string Help => "followsun <action>\nwhere action is start or stop";
+    public override string Help => "followsun <action>\nwhere action is start or stop";
 
     public FollowSun(IServiceProvider serviceProvider)
-    : base(serviceProvider)
+      : base(serviceProvider)
     {
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       if (args.Length != 1)
       {

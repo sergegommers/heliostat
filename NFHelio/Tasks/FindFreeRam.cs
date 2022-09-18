@@ -6,30 +6,27 @@
   /// <summary>
   /// Finds the free RAM by allocating as much bytes as possible
   /// </summary>
-  internal class FindFreeRam : ITask
+  internal class FindFreeRam: BaseTask
   {
-    private readonly IAppMessageWriter appMessageWriter;
+    /// <inheritdoc />
+    public override string Command => "freeram";
 
     /// <inheritdoc />
-    string ITask.Command => "freeram";
+    public override string Description => "Finds how much RAM is available";
 
     /// <inheritdoc />
-    string ITask.Description => "Finds how much RAM is available";
-
-    /// <inheritdoc />
-    string ITask.Help => "No further info";
+    public override string Help => "No further info";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FindFreeRam"/> class.
     /// </summary>
-    /// <param name="appMessageWriter">The application message writer.</param>
-    public FindFreeRam(IAppMessageWriter appMessageWriter)
+    public FindFreeRam(IServiceProvider serviceProvider)
+      : base(serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       int freeram = 0;
 
@@ -38,17 +35,17 @@
         var relsize = (int)Math.Pow(2, i);
         try
         {
-          this.appMessageWriter.SendString($"FreeRam - Allocating {relsize + freeram} bytes\n");
+          this.SendString($"FreeRam - Allocating {relsize + freeram} bytes\n");
           Alloc(relsize + freeram);
           freeram += relsize;
-          this.appMessageWriter.SendString($"FreeRam - Allocated {freeram} bytes\n");
+          this.SendString($"FreeRam - Allocated {freeram} bytes\n");
         }
         catch
         {
         }
       }
 
-      this.appMessageWriter.SendString($"FreeRam = {freeram} bytes\n");
+      this.SendString($"FreeRam = {freeram} bytes\n");
     }
 
     private void Alloc(int size)

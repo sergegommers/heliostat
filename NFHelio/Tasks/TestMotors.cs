@@ -1,36 +1,33 @@
 ﻿namespace NFHelio.Tasks
 {
-  using NFCommon.Services;
+  using System;
   using System.Device.Pwm;
   using System.Threading;
 
   /// <summary>
   /// Tests the engines
   /// </summary>
-  internal class TestMotors : ITask
+  internal class TestMotors : BaseTask
   {
-    private readonly IAppMessageWriter appMessageWriter;
+    /// <inheritdoc />
+    public override string Command => "testmotor";
 
     /// <inheritdoc />
-    string ITask.Command => "testmotor";
+    public override string Description => "Tests the motor";
 
     /// <inheritdoc />
-    string ITask.Description => "Tests the motor";
-
-    /// <inheritdoc />
-    string ITask.Help => "Briefly activates the motors";
+    public override string Help => "Briefly activates the motors";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestMotors"/> class.
     /// </summary>
-    /// <param name="appMessageWriter">The application message writer.</param>
-    public TestMotors(IAppMessageWriter appMessageWriter)
+    public TestMotors(IServiceProvider serviceProvider)
+      : base(serviceProvider)
     {
-      this.appMessageWriter = appMessageWriter;
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       PwmChannel pwmPin1;
       PwmChannel pwmPin2;
@@ -46,7 +43,7 @@
           pwmPin2 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Zenith_Down, 40000, 0);
           break;
         default:
-          this.appMessageWriter.SendString("Unknown plane\n");
+          this.SendString("Unknown plane\n");
           return;
       }
 
@@ -61,7 +58,7 @@
       pwmPin1.Stop();
       pwmPin2.Stop();
 
-      this.appMessageWriter.SendString($"Done testing\n");
+      this.SendString($"Done testing\n");
     }
 
     private void TestChannel(PwmChannel channel)

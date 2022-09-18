@@ -64,11 +64,11 @@
           new SetTime(this.provider),
           new SetPosition(this.provider),
           new GetTime(this.provider),
-          new FindFreeRam(this.appMessageWriter),
-          new FreeMem(this.appMessageWriter),
-          new TestAdc(this.appMessageWriter),
-          new TestMotors(this.appMessageWriter),
-          new Reboot(this.appMessageWriter),
+          new FindFreeRam(this.provider),
+          new FreeMem(this.provider),
+          new TestAdc(this.provider),
+          new TestMotors(this.provider),
+          new Reboot(this.provider),
         };
 
         switch (command)

@@ -9,16 +9,16 @@
   /// <summary>
   /// Calculates the position of the sun and some other parameters
   /// </summary>
-  internal class CalcSpa : BaseTask, ITask
+  internal class CalcSpa : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "calcspa";
+    public override string Command => "calcspa";
 
     /// <inheritdoc />
-    string ITask.Description => "Calculates the position of the sun";
+    public override string Description => "Calculates the position of the sun";
 
     /// <inheritdoc />
-    string ITask.Help => "No further info";
+    public override string Help => "No further info";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CalcSpa" /> class.
@@ -30,7 +30,7 @@
     }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       var realTimeClockFactory = (IRealTimeClockFactory)this.GetServiceProvider().GetService(typeof(IRealTimeClockFactory));
       var realTimeClock = realTimeClockFactory.Create();
