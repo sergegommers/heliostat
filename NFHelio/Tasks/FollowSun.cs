@@ -1,29 +1,37 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Storage;
+  using NFHelio.Devices;
   using NFSpa;
+  using System;
   using System.Diagnostics;
   using System.Threading;
 
   /// <summary>
   /// Follows the sun across the sky
   /// </summary>
-  internal class FollowSun : ITask
+  internal class FollowSun : BaseTask
   {
     /// <inheritdoc />
-    public string Command => "followsun";
+    public override string Command => "followsun";
 
     /// <inheritdoc />
-    public string Description => "Follows the sun";
+    public override string Description => "Follows the sun";
 
     /// <inheritdoc />
-    public string Help => "follow <action>\nwhere action is start or stop";
+    public override string Help => "followsun <action>\nwhere action is start or stop";
+
+    public FollowSun(IServiceProvider serviceProvider)
+      : base(serviceProvider)
+    {
+    }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       if (args.Length != 1)
       {
-        Program.context.BluetoothSpp.SendString("Invalid number of arguments\n");
+        this.SendString("Invalid number of arguments\n");
         return;
       }
 
@@ -43,17 +51,18 @@
       {
         if (Program.context.SunFollowingThread != null)
         {
-          Program.context.BluetoothSpp.SendString("Already running...\n");
+          this.SendString("Already running...\n");
           return;
         }
 
-        Follower follower = new Follower();
+        Follower follower = new Follower(this.GetServiceProvider());
+
         Program.context.SunFollowingThread = new Thread(new ThreadStart(follower.Start));
 
         // Start the thread.
         Program.context.SunFollowingThread.Start();
 
-        Program.context.BluetoothSpp.SendString("Following the sun...\n");
+        this.SendString("Following the sun...\n");
 
         return;
       }
@@ -71,16 +80,27 @@
 
   public class Follower
   {
+    private readonly IServiceProvider serviceProvider;
+
+    public Follower(IServiceProvider serviceProvider)
+    {
+      this.serviceProvider = serviceProvider;
+    }
+
     public void Start()
     {
       while (true)
       {
+        var realTimeClockFactory = (IRealTimeClockFactory)this.serviceProvider.GetService(typeof(IRealTimeClockFactory));
+        var realTimeClock = realTimeClockFactory.Create();
+        
+        var settingsStorage = (ISettingsStorage)this.serviceProvider.GetService(typeof(ISettingsStorage));
+
         Debug.WriteLine($"Follower: getting the time");
-        var realTimeClock = Program.context.RealTimeClockFactory.GetRealTimeClock(Context.RtcAddress, 1);
         var dt = realTimeClock.GetTime();
 
         Debug.WriteLine($"Follower: getting the position");
-        Settings settings = Program.context.SettingsStorageFactory.GetSettingsStorage().ReadSettings() as Settings;
+        Settings settings = settingsStorage.ReadSettings() as Settings;
 
         Debug.WriteLine($"Follower: calculating the angles");
         Spa_data spa = new()
@@ -106,7 +126,7 @@
 
           Debug.WriteLine($"Follower: moving the mirror to azimuth {azimuth} and zenith {zenith}");
 
-          var motorController = new MotorController();
+          var motorController = new MotorController(this.serviceProvider);
           motorController.MoveMotor(MotorPlane.Azimuth, azimuth);
 
           Debug.WriteLine($"Follower: mirrors moved");

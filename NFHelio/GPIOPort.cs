@@ -18,10 +18,10 @@
     ADC_Zenith = 39,
 
     // Azimuth east to west
-    PWM_Azimuth_East_to_West = 16,
+    PWM_Azimuth_East_to_West = 18,
 
     // Azimuth west to east
-    PWM_Azimuth_West_to_East = 17,
+    PWM_Azimuth_West_to_East = 19,
 
     // Zenith moving up
     PWM_Zenith_Up = 13,

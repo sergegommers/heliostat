@@ -1,22 +1,29 @@
-﻿namespace NFHelio.Tasks
+﻿using System;
+
+namespace NFHelio.Tasks
 {
-  internal class MoveMirror : ITask
+  internal class MoveMirror : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "move";
+    public override string Command => "move";
 
     /// <inheritdoc />
-    string ITask.Description => "Moves the mirror";
+    public override string Description => "Moves the mirror";
 
     /// <inheritdoc />
-    string ITask.Help => "move <plane> <angle> where plane is a or z,\nangle is the desired angle";
+    public override string Help => "move <plane> <angle> where plane is a or z,\nangle is the desired angle";
+
+    public MoveMirror(IServiceProvider serviceProvider)
+      : base(serviceProvider)
+    {
+    }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       if (args.Length != 2)
       {
-        Program.context.BluetoothSpp.SendString("To move, provide a or z and angle\n");
+        this.SendString("To move, provide a or z and angle\n");
         return;
       }
 
@@ -30,13 +37,13 @@
           plane = MotorPlane.Zenith;
           break;
         default:
-          Program.context.BluetoothSpp.SendString("Unknown plane\n");
+          this.SendString("Unknown plane\n");
           return;
       }
 
       short angleDesired = short.Parse(args[1]);
 
-      var motorController = new MotorController();
+      var motorController = new MotorController(this.GetServiceProvider());
       motorController.MoveMotor(plane, angleDesired);
     }
   }

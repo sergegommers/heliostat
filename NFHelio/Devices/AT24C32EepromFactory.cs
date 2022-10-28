@@ -1,10 +1,14 @@
 ﻿namespace NFHelio.Devices
 {
-  class AT24C32EepromFactory : EepromFactory
+  /// <summary>
+  /// Implements the <see cref="IEepromFactory"/> for the AT24C32 Eeprom
+  /// </summary>
+  internal class AT24C32EepromFactory : IEepromFactory
   {
-    public override IEeprom GetEeprom(int address, int i2cBus)
+    /// <inheritdoc />
+    public IEeprom Create()
     {
-      return new AT24C32(address, i2cBus);
+      return new AT24C32(Context.EepromAddress, 1);
     }
   }
 }

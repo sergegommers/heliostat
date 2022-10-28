@@ -1,23 +1,48 @@
 ﻿namespace NFHelio
 {
   using NFCommon;
+  using NFCommon.Services;
   using System;
   using System.Device.Pwm;
   using System.Diagnostics;
 
+  /// <summary>
+  /// An enum for the planes we can move in
+  /// </summary>
   public enum MotorPlane
   {
     Azimuth,
     Zenith
   }
 
+  /// <summary>
+  /// A class for controlling motors
+  /// </summary>
   public class MotorController
   {
+    public readonly IServiceProvider serviceProvider;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MotorController"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider.</param>
+    public MotorController(IServiceProvider serviceProvider)
+    {
+      this.serviceProvider = serviceProvider;
+    }
+
+    /// <summary>
+    /// Moves the motor.
+    /// </summary>
+    /// <param name="plane">The plane.</param>
+    /// <param name="angleDesired">The angle desired.</param>
     public void MoveMotor(MotorPlane plane, short angleDesired)
     {
       int adcChannel;
       PwmChannel pwmPin1;
       PwmChannel pwmPin2;
+
+      var appMessageWriter = (IAppMessageWriter)serviceProvider.GetService(typeof(IAppMessageWriter));
 
       switch (plane)
       {
@@ -43,7 +68,7 @@
           pwmPin2 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Zenith_Down, 40000, 0);
           break;
         default:
-          Program.context.BluetoothSpp.SendString("Unknown plane\n");
+          appMessageWriter.SendString("Unknown plane\n");
           return;
       }
 
@@ -51,7 +76,8 @@
       short value = (short)AdcReader.GetValue(adcChannel, Context.AdcSampleSize);
 
       // get the desired value using the calibrated angle/value settings
-      var array = new CalibrationArray(Program.context.Settings.Aci, Program.context.Settings.Acv);
+      var settings = (Settings)this.serviceProvider.GetService(typeof(Settings));
+      var array = new CalibrationArray(settings.Aci, settings.Acv);
       array.GetCalibrationPoint(angleDesired, out short valueDesired);
 
       PwmChannel pwmPin;
@@ -86,7 +112,7 @@
           // know when to stop...
           if (Math.Abs(valueDesired - value) < 10)
           {
-            Program.context.BluetoothSpp.SendString($"Endpoint reached: valueDesired {valueDesired} value {value}\n");
+            appMessageWriter.SendString($"Endpoint reached: valueDesired {valueDesired} value {value}\n");
             break;
           }
 
@@ -99,7 +125,7 @@
             {
               pwmPin.DutyCycle = 0f;
 
-              Program.context.BluetoothSpp.SendString($"Motor is moving in wrong direction, reverse the polarity\n");
+              appMessageWriter.SendString($"Motor is moving in wrong direction, reverse the polarity\n");
 
               Debug.WriteLine($"Original diff: {originalDiff}, current diff {currentDiff}");
 
@@ -116,7 +142,7 @@
             {
               pwmPin.DutyCycle = 0f;
 
-              Program.context.BluetoothSpp.SendString($"Mirror is not moving, check if the motor is stuck\n");
+              appMessageWriter.SendString($"Mirror is not moving, check if the motor is stuck\n");
 
               Debug.WriteLine($"Current diff: {originalDiff}, last checked diff {lastCheckedDiff}");
 
@@ -170,7 +196,7 @@
       }
       catch (Exception ex)
       {
-        Program.context.BluetoothSpp.SendString($"MoveMirror stopped with exception {ex.Message}\n");
+        appMessageWriter.SendString($"MoveMirror stopped with exception {ex.Message}\n");
       }
       finally
       {

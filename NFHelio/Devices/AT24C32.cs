@@ -5,7 +5,7 @@
   using System.Threading;
 
   /// <summary>
-  /// AT24C32 - I2C EEPROM read/write
+  /// Implements the <see cref="IEeprom"/> interface for the AT24C32 - I2C Eeprom
   /// </summary>
   public class AT24C32 : IEeprom
   {

@@ -1,19 +1,37 @@
 ﻿namespace NFHelio.Storage
 {
   using NFCommon.Storage;
+  using NFHelio.Devices;
   using System;
   using System.Collections;
   using System.Diagnostics;
 
+  /// <summary>
+  /// An implementation of <see cref="ISettingsStorage"/> that read\writes the application settings to the configured <see cref="IEeprom"/> as a binary data
+  /// </summary>
+  /// <seealso cref="NFCommon.Storage.ISettingsStorage" />
   public class SimpleSettingsStorage : ISettingsStorage
   {
+    private readonly IServiceProvider serviceProvider;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SimpleSettingsStorage"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider.</param>
+    public SimpleSettingsStorage(IServiceProvider serviceProvider)
+    {
+      this.serviceProvider = serviceProvider;
+    }
+
+    /// <inheritdoc />
     public SettingsBase ReadSettings()
     {
       try
       {
         Debug.WriteLine($"Reading settings.");
 
-        var eeprom = Program.context.EepromFactory.GetEeprom(Context.EepromAddress, 1);
+        var factory = (IEepromFactory)this.serviceProvider.GetService(typeof(IEepromFactory));
+        var eeprom = factory.Create();
 
         ushort initAddress = 0x0;
         byte[] initBytes = eeprom.Read(initAddress, 6);
@@ -106,11 +124,13 @@
       }
     }
 
+    /// <inheritdoc />
     public void WriteSettings(SettingsBase settingsBase)
     {
       Debug.WriteLine($"Saving settings.");
 
-      var eeprom = Program.context.EepromFactory.GetEeprom(Context.EepromAddress, 1);
+      var factory = (IEepromFactory)this.serviceProvider.GetService(typeof(IEepromFactory));
+      var eeprom = factory.Create();
 
       ushort initAddress = 0x0;
       var initBytes = new byte[] { 0xAA, 0x55 };

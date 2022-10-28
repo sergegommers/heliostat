@@ -1,5 +1,6 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Services;
   using System;
   using System.Device.Adc;
   using System.Diagnostics;
@@ -8,25 +9,33 @@
   /// <summary>
   /// Tests the ADC
   /// </summary>
-  internal class TestAdc : ITask
+  internal class TestAdc : BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "testadc";
+    public override string Command => "testadc";
 
     /// <inheritdoc />
-    string ITask.Description => "Tests the adc controller";
+    public override string Description => "Tests the adc controller";
 
     /// <inheritdoc />
-    string ITask.Help => "testadc <plane> <samples> where plane is a or z\nand samples is the number of measurements to take";
+    public override string Help => "testadc <plane> <samples> where plane is a or z\nand samples is the number of measurements to take";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestAdc"/> class.
+    /// </summary>
+    public TestAdc(IServiceProvider serviceProvider)
+      : base(serviceProvider)
+    {
+    }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       var adc = new AdcController();
 
       if (args.Length < 1)
       {
-        Program.context.BluetoothSpp.SendString("To test, provide a or z and (optionally) #samples\n");
+        this.SendString("To test, provide a or z and (optionally) #samples\n");
         return;
       }
 
@@ -40,7 +49,7 @@
           adcChannelNumber = Context.ZenithAdcChannel;
           break;
         default:
-          Program.context.BluetoothSpp.SendString("Unknown plane\n");
+          this.SendString("Unknown plane\n");
           return;
       }
 
@@ -69,7 +78,7 @@
         value /= setSize;
         percent /= setSize;
 
-        Program.context.BluetoothSpp.SendString($"value = {(int)value}, ratio = {percent}\n");
+        this.SendString($"value = {(int)value}, ratio = {percent}\n");
 
         value = 0;
         percent = 0;
@@ -77,7 +86,7 @@
         Thread.Sleep(1000);
       }
 
-      Program.context.BluetoothSpp.SendString($"Done testing adc\n");
+      this.SendString($"Done testing adc\n");
     }
   }
 }

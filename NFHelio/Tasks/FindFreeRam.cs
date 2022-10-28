@@ -1,23 +1,32 @@
 ﻿namespace NFHelio.Tasks
 {
+  using NFCommon.Services;
   using System;
 
   /// <summary>
   /// Finds the free RAM by allocating as much bytes as possible
   /// </summary>
-  internal class FindFreeRam : ITask
+  internal class FindFreeRam: BaseTask
   {
     /// <inheritdoc />
-    string ITask.Command => "freeram";
+    public override string Command => "freeram";
 
     /// <inheritdoc />
-    string ITask.Description => "Finds how much RAM is available";
+    public override string Description => "Finds how much RAM is available";
 
     /// <inheritdoc />
-    string ITask.Help => "No further info";
+    public override string Help => "No further info";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FindFreeRam"/> class.
+    /// </summary>
+    public FindFreeRam(IServiceProvider serviceProvider)
+      : base(serviceProvider)
+    {
+    }
 
     /// <inheritdoc />
-    public void Execute(string[] args)
+    public override void Execute(string[] args)
     {
       int freeram = 0;
 
@@ -26,17 +35,17 @@
         var relsize = (int)Math.Pow(2, i);
         try
         {
-          Program.context.BluetoothSpp.SendString($"FreeRam - Allocating {relsize + freeram} bytes\n");
+          this.SendString($"FreeRam - Allocating {relsize + freeram} bytes\n");
           Alloc(relsize + freeram);
           freeram += relsize;
-          Program.context.BluetoothSpp.SendString($"FreeRam - Allocated {freeram} bytes\n");
+          this.SendString($"FreeRam - Allocated {freeram} bytes\n");
         }
         catch
         {
         }
       }
 
-      Program.context.BluetoothSpp.SendString($"FreeRam = {freeram} bytes\n");
+      this.SendString($"FreeRam = {freeram} bytes\n");
     }
 
     private void Alloc(int size)
