@@ -50,6 +50,7 @@
     <Compile Include="Tasks\GetTime.cs" />
     <Compile Include="Tasks\ITask.cs" />
     <Compile Include="Tasks\MoveMirror.cs" />
+    <Compile Include="Tasks\MoveMotor.cs" />
     <Compile Include="Tasks\TestAdc.cs" />
     <Compile Include="Tasks\Reboot.cs" />
     <Compile Include="Tasks\SetPosition.cs" />

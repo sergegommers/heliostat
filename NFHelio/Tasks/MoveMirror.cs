@@ -44,7 +44,7 @@ namespace NFHelio.Tasks
       short angleDesired = short.Parse(args[1]);
 
       var motorController = new MotorController(this.GetServiceProvider());
-      motorController.MoveMotor(plane, angleDesired);
+      motorController.MoveMotorToAngle(plane, angleDesired);
     }
   }
 }

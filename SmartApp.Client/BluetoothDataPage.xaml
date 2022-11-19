@@ -13,6 +13,10 @@
                     Margin="10"
                     Clicked="InitalizeCommandButton_Clicked"
                     Text="Explicit Init" />
+            <Button x:Name="CalibrateButton"
+                    Margin="10"
+                    Clicked="CalibrateCommandButton_Clicked"
+                    Text="Calibrate" />
             <Button x:Name="SetTimeAndLocation"
                     Margin="10"
                     Clicked="SetTimeAndLocationCommandButton_Clicked"
@@ -22,7 +26,7 @@
                     Clicked="SendCommandButton_Clicked"
                     Text="Send command" />
             <Entry x:Name="CommandTxt"
-                   Text="ATZ" />
+                   Text="help" />
             <ScrollView VerticalOptions="StartAndExpand">
                 <Label x:Name="Output"
                        VerticalOptions="CenterAndExpand" />

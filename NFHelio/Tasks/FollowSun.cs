@@ -127,7 +127,7 @@
           Debug.WriteLine($"Follower: moving the mirror to azimuth {azimuth} and zenith {zenith}");
 
           var motorController = new MotorController(this.serviceProvider);
-          motorController.MoveMotor(MotorPlane.Azimuth, azimuth);
+          motorController.MoveMotorToAngle(MotorPlane.Azimuth, azimuth);
 
           Debug.WriteLine($"Follower: mirrors moved");
         }

@@ -4,7 +4,6 @@ using System.Text;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using XamarinEssentials = Xamarin.Essentials;
 
 namespace SmartApp.Client
 {
@@ -12,6 +11,8 @@ namespace SmartApp.Client
   public partial class BluetoothDataPage : ContentPage
   {
     private readonly IDevice _connectedDevice;
+
+    private HelioStat helioStat;
 
 
     public BluetoothDataPage(IDevice connectedDevice)
@@ -23,6 +24,11 @@ namespace SmartApp.Client
 
     private ICharacteristic sendCharacteristic;
     private ICharacteristic receiveCharacteristic;
+
+    private async void CalibrateCommandButton_Clicked(object sender, EventArgs e)
+    {
+      await Navigation.PushAsync(new CalibrationPage(this.helioStat));
+    }
 
     private async void InitalizeCommandButton_Clicked(object sender, EventArgs e)
     {
@@ -42,17 +48,9 @@ namespace SmartApp.Client
           {
             var descriptors = await receiveCharacteristic.GetDescriptorsAsync();
 
-            receiveCharacteristic.ValueUpdated += (o, args) =>
-            {
-              var receivedBytes = args.Characteristic.Value;
-              MainThread.BeginInvokeOnMainThread(() =>
-                          {
-                            var newtext = Encoding.UTF8.GetString(receivedBytes, 0, receivedBytes.Length) + Environment.NewLine;
-                            Output.Text += newtext;
-                          });
-            };
+            helioStat = new HelioStat(sendCharacteristic, receiveCharacteristic);
+            await helioStat.StartUpdatesAsync();
 
-            await receiveCharacteristic.StartUpdatesAsync();
             InitButton.IsEnabled = !(ScanButton.IsEnabled = true);
 
             // store the current device so we can connect to it later without rescanning
@@ -64,35 +62,32 @@ namespace SmartApp.Client
         }
         else
         {
-          Output.Text += "UART GATT service not found." + Environment.NewLine;
+          AddToLog("UART GATT service not found.");
         }
       }
       catch (Exception ex)
       {
-        Output.Text += "Error initializing UART GATT service." + Environment.NewLine;
+        AddToLog($"Error initializing UART GATT service: {ex.Message}");
       }
     }
 
+    private void AddToLog(string text)
+    {
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        return;
+      }
+
+      MainThread.BeginInvokeOnMainThread(() =>
+      {
+        Output.Text += text + Environment.NewLine;
+      });
+    }
 
     private async void SetTimeAndLocationCommandButton_Clicked(object sender, EventArgs e)
     {
-      var location = await Geolocation.GetLastKnownLocationAsync();
-      if (location != null)
-      {
-        Output.Text += $"Latitude = {location.Latitude}, Longitude = {location.Longitude}, Accuracy = {location.Accuracy}" + Environment.NewLine;
-      }
-
-      try
-      {
-        if (sendCharacteristic != null)
-        {
-          var result = await sendCharacteristic.WriteAsync(Encoding.ASCII.GetBytes($"setpos {location.Latitude} {location.Longitude}\r\n"));
-        }
-      }
-      catch (Exception ex)
-      {
-        Output.Text += "Error sending comand to UART." + Environment.NewLine;
-      }
+      var result = await helioStat.SetTimeAndLocationAsync();
+      AddToLog(result);
     }
 
     private async void SendCommandButton_Clicked(object sender, EventArgs e)
@@ -103,10 +98,11 @@ namespace SmartApp.Client
         {
           var bytes = await sendCharacteristic.WriteAsync(Encoding.ASCII.GetBytes($"{CommandTxt.Text}\r\n"));
         }
+
       }
       catch (Exception ex)
       {
-        Output.Text += "Error sending comand to UART." + Environment.NewLine;
+        AddToLog($"Error sending command to device: {ex.Message}");
       }
     }
   }

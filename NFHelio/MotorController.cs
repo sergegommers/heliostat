@@ -36,7 +36,7 @@
     /// </summary>
     /// <param name="plane">The plane.</param>
     /// <param name="angleDesired">The angle desired.</param>
-    public void MoveMotor(MotorPlane plane, short angleDesired)
+    public void MoveMotorToAngle(MotorPlane plane, short angleDesired)
     {
       int adcChannel;
       PwmChannel pwmPin1;
@@ -202,6 +202,68 @@
       {
         // full stop
         pwmPin.DutyCycle = 0f;
+        pwmPin1.Stop();
+        pwmPin2.Stop();
+      }
+    }
+
+    /// <summary>
+    /// Moves the motor.
+    /// </summary>
+    /// <param name="plane">The plane.</param>
+    /// <param name="speed">The speed.</param>
+    public void MoveMotorIndefinitely(MotorPlane plane, double speed)
+    {
+      PwmChannel pwmPin1;
+      PwmChannel pwmPin2;
+
+      if (speed < -1.0 || speed > 1.0)
+      {
+        return;
+      }
+
+      var appMessageWriter = (IAppMessageWriter)serviceProvider.GetService(typeof(IAppMessageWriter));
+
+      switch (plane)
+      {
+        case MotorPlane.Azimuth:
+          pwmPin1 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Azimuth_East_to_West, 40000, 0);
+          pwmPin2 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Azimuth_West_to_East, 40000, 0);
+          break;
+        case MotorPlane.Zenith:
+          pwmPin1 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Zenith_Up, 40000, 0);
+          pwmPin2 = PwmChannel.CreateFromPin((int)GPIOPort.PWM_Zenith_Down, 40000, 0);
+          break;
+        default:
+          appMessageWriter.SendString("Unknown plane\n");
+          return;
+      }
+
+      PwmChannel pwmPin;
+      if (speed > 0)
+      {
+        pwmPin = pwmPin1;
+      }
+      else
+      {
+        pwmPin = pwmPin2;
+      }
+
+      float dutyCycle = (float)Math.Abs(speed);
+
+      if (dutyCycle != 0.0)
+      {
+        // initialize the PWM output, but note nothing will happen until the dutycycle is set different from 0
+        pwmPin1.Start();
+        pwmPin2.Start();
+
+        pwmPin.DutyCycle = dutyCycle;
+      }
+      else
+      {
+        // full stop
+        pwmPin1.DutyCycle = 0f;
+        pwmPin2.DutyCycle = 0f;
         pwmPin1.Stop();
         pwmPin2.Stop();
       }

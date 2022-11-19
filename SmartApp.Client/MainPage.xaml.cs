@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
-using XamarinEssentials = Xamarin.Essentials;
 
 namespace SmartApp.Client
 {
@@ -42,7 +41,7 @@ namespace SmartApp.Client
 
     private async Task<bool> PermissionsGrantedAsync()
     {
-      var locationPermissionStatus = await Permissions.CheckStatusAsync<XamarinEssentials.Permissions.LocationAlways>();
+      var locationPermissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
 
       if (locationPermissionStatus != PermissionStatus.Granted)
       {

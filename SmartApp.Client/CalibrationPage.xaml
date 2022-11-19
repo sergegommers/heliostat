@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             x:Class="SmartApp.Client.CalibrationPage"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             Title="Calibration"
+             Visual="Material"
+             mc:Ignorable="d"
+             x:Name="Calibration">
+    <ContentPage.Content>
+        <StackLayout Padding="10"
+                     Orientation="Vertical">
+            <Label Text="Select the angle"/>
+            <RadioButton 
+                Content="Azimuth"
+                Value="Azimuth"
+                CheckedChanged="OnAngleRadioButtonCheckedChanged"
+                IsChecked="True"/>
+            <RadioButton
+                Content="Zenith"
+                Value="Zenith"
+                CheckedChanged="OnAngleRadioButtonCheckedChanged" />
+            <Button x:Name="MoveDown"
+                    Margin="10"
+                    Pressed="MoveDown_Pressed"
+                    Released="MoveDown_Released"
+                    Text="-" />
+            <Button x:Name="MoveUp"
+                    Margin="10"
+                    Pressed="MoveUp_Pressed"
+                    Released="MoveUp_Released"
+                    Text="+" />
+            <ScrollView VerticalOptions="StartAndExpand">
+                <Label x:Name="Output"
+                       VerticalOptions="CenterAndExpand" />
+            </ScrollView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

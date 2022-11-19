@@ -59,6 +59,7 @@
           new TestOnboardLed(this.provider),
           new FollowSun(this.provider),
           new Calibrate(this.provider),
+          new MoveMotor(this.provider),
           new MoveMirror(this.provider),
           new CalcSpa(this.provider),
           new SetTime(this.provider),

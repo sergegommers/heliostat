@@ -22771,19 +22771,16 @@ namespace SmartApp.Client.Droid
 			public const int preference_list_divider_material = 2131165536;
 			
 			// aapt resource value: 0x7F070161
-			public const int splash_logo = 2131165537;
+			public const int splash_screen = 2131165537;
 			
 			// aapt resource value: 0x7F070162
-			public const int splash_screen = 2131165538;
+			public const int test_custom_background = 2131165538;
 			
 			// aapt resource value: 0x7F070163
-			public const int test_custom_background = 2131165539;
+			public const int tooltip_frame_dark = 2131165539;
 			
 			// aapt resource value: 0x7F070164
-			public const int tooltip_frame_dark = 2131165540;
-			
-			// aapt resource value: 0x7F070165
-			public const int tooltip_frame_light = 2131165541;
+			public const int tooltip_frame_light = 2131165540;
 			
 			static Drawable()
 			{
