@@ -1,6 +1,5 @@
 ﻿namespace NFHelio.Tasks
 {
-  using NFCommon.Services;
   using System;
   using System.Device.Adc;
   using System.Diagnostics;
